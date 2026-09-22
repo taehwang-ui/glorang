@@ -192,7 +192,7 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
 # How to lead
 - You drive the lesson. Every turn ends with exactly one question or one simple instruction that invites the student to speak.
 - Keep each turn short: one to three short sentences. Never lecture or explain at length.
-- Shape the lesson as warm-up, topic talk, a mini role-play or quick game, then wrap-up. Pace it using the time notes you receive.
+- Shape the lesson as warm-up, topic talk, a mini role-play or quick game, then wrap-up. Pace it using the phase and time notes you receive, and use the lesson plan's words, frames, role-play and game.
 - Follow the lesson topic, but follow the student's interest when they show one.
 - Ask questions the student can actually answer at their level. If they stall, offer two choices ("Do you like dogs or cats?") or a sentence frame ("You can say: I like ...").
 - Praise effort specifically ("Nice, you used 'because'!"), not generically. Do not praise every single turn.
@@ -230,9 +230,28 @@ Refer to the board naturally ("Look at the board", "Can you read this?"). Keep b
 # Notes you will see in square brackets (from the lesson system, not the student)
 - [Lesson starts] : greet the student by name in one short sentence, then ask your first easy question.
 - [The student did not answer for N seconds] : re-ask more simply with two choices. Do not scold.
+- [Lesson phase: ...] : move into that part of the lesson within a turn or two (warm-up, topic talk, role-play or game, wrap-up). Introduce a role-play or game briefly and clearly, then play it.
 - [Time left: N minutes] : begin wrapping up. Do not mention the clock to the student.
 - [Time is up] : say goodbye warmly in one or two sentences, naming one thing they did well, put a sticker on the board, and end with no question.`;
   /* PROMPT:END */
+
+  /* LESSONS:BEGIN */
+  const LESSON_PLANS = {"favorites":{"goals":["Say what I like and why","Ask a friend what they like"],"vocabulary":[{"word":"favorite","emoji":"⭐","ko":"가장 좋아하는"},{"word":"color","emoji":"🎨","ko":"색깔"},{"word":"game","emoji":"🎮","ko":"게임"},{"word":"song","emoji":"🎵","ko":"노래"},{"word":"because","emoji":"💬","ko":"왜냐하면"},{"word":"fun","emoji":"😆","ko":"재미있는"}],"frames":["My favorite ___ is ___.","I like ___ because ___.","What is your favorite ___?"],"rolePlay":"The student is a TV reporter interviewing Coco about Coco's favorite things, then they swap.","game":"Guess my favorite: Coco gives three clues about a favorite thing and the student guesses. Then the student gives clues."},"animals":{"goals":["Name animals and say what they can do","Describe a pet or a dream pet"],"vocabulary":[{"word":"pet","emoji":"🐾","ko":"반려동물"},{"word":"dog","emoji":"🐶","ko":"개"},{"word":"cat","emoji":"🐱","ko":"고양이"},{"word":"fast","emoji":"💨","ko":"빠른"},{"word":"cute","emoji":"🥰","ko":"귀여운"},{"word":"can fly","emoji":"🦅","ko":"날 수 있다"}],"frames":["I have a ___.","A ___ can ___.","I want a ___ because ___."],"rolePlay":"The student is a zookeeper showing Coco around the zoo, introducing three animals.","game":"Animal sounds: Coco makes a sound in words (woof, meow, moo) and the student names the animal, then swap."},"food":{"goals":["Say what food I like and don't like","Order food politely"],"vocabulary":[{"word":"pizza","emoji":"🍕","ko":"피자"},{"word":"rice","emoji":"🍚","ko":"밥"},{"word":"sweet","emoji":"🍭","ko":"달콤한"},{"word":"spicy","emoji":"🌶️","ko":"매운"},{"word":"delicious","emoji":"😋","ko":"맛있는"},{"word":"I'd like","emoji":"🙏","ko":"~주세요"}],"frames":["I like ___ but I don't like ___.","___ is too spicy.","I'd like ___, please."],"rolePlay":"Restaurant: Coco is the waiter, the student orders lunch. Then the student is the waiter.","game":"Food quiz: Coco describes a food (It is round, it is red, it is a fruit) and the student guesses."},"myday":{"goals":["Talk about my daily routine with times","Use morning, afternoon, evening"],"vocabulary":[{"word":"wake up","emoji":"⏰","ko":"일어나다"},{"word":"breakfast","emoji":"🥣","ko":"아침 식사"},{"word":"school","emoji":"🏫","ko":"학교"},{"word":"homework","emoji":"📚","ko":"숙제"},{"word":"play","emoji":"⚽","ko":"놀다"},{"word":"go to bed","emoji":"🛏️","ko":"자러 가다"}],"frames":["I wake up at ___.","In the morning, I ___.","After school, I ___."],"rolePlay":"Coco is a robot who does not know what a day is. The student teaches the robot what to do from morning to night.","game":"Order the day: Coco says three activities out of order and the student says them in the right order."},"family":{"goals":["Introduce family members","Say what family members like or do"],"vocabulary":[{"word":"mom","emoji":"👩","ko":"엄마"},{"word":"dad","emoji":"👨","ko":"아빠"},{"word":"sister","emoji":"👧","ko":"언니/누나/여동생"},{"word":"brother","emoji":"👦","ko":"오빠/형/남동생"},{"word":"grandma","emoji":"👵","ko":"할머니"},{"word":"together","emoji":"🤝","ko":"함께"}],"frames":["This is my ___.","My ___ likes ___.","We ___ together."],"rolePlay":"Family photo: the student describes an imaginary family photo on the board and Coco asks questions about each person.","game":"Who is it? Coco describes a family member (She is tall. She likes cooking.) and the student guesses who."},"school":{"goals":["Talk about school subjects and friends","Say what I do at school"],"vocabulary":[{"word":"teacher","emoji":"👩‍🏫","ko":"선생님"},{"word":"friend","emoji":"🧑‍🤝‍🧑","ko":"친구"},{"word":"math","emoji":"➗","ko":"수학"},{"word":"art","emoji":"🖍️","ko":"미술"},{"word":"recess","emoji":"🛝","ko":"쉬는 시간"},{"word":"boring","emoji":"🥱","ko":"지루한"}],"frames":["My favorite subject is ___.","At recess, I ___ with ___.","___ is fun but ___ is hard."],"rolePlay":"New student: Coco is new at school and the student shows Coco around and introduces a friend.","game":"Subject charades in words: Coco describes what you do in a class and the student names the subject."},"weekend":{"goals":["Talk about the past using went, ate, played, saw","Ask what someone did"],"vocabulary":[{"word":"went","emoji":"🚶","ko":"갔다"},{"word":"played","emoji":"🎲","ko":"놀았다"},{"word":"ate","emoji":"🍽️","ko":"먹었다"},{"word":"saw","emoji":"👀","ko":"봤다"},{"word":"park","emoji":"🌳","ko":"공원"},{"word":"movie","emoji":"🎬","ko":"영화"}],"frames":["On Saturday, I ___.","I went to ___ with ___.","It was ___."],"rolePlay":"Weekend news: the student is a news reporter telling the weekend news about themselves. Coco asks follow-up questions.","game":"True or false: Coco says three things Coco did last weekend, one is silly and false. The student finds it, then makes their own."},"free":{"goals":["Keep a conversation going","Ask Coco questions too"],"vocabulary":[{"word":"really?","emoji":"😮","ko":"정말?"},{"word":"me too","emoji":"🙋","ko":"나도"},{"word":"why","emoji":"❓","ko":"왜"},{"word":"how about you?","emoji":"🔄","ko":"너는?"},{"word":"awesome","emoji":"🤩","ko":"멋진"},{"word":"maybe","emoji":"🤔","ko":"아마"}],"frames":["I think ___.","How about you?","Can you tell me about ___?"],"rolePlay":"Talk show: the student is the host and Coco is the guest, then swap.","game":"Would you rather: Coco gives two funny choices and the student picks one and says why."}};
+  /* LESSONS:END */
+
+  function lessonPlanText(topicId) {
+    const plan = LESSON_PLANS[topicId] || LESSON_PLANS.free;
+    if (!plan) return "";
+    return [
+      "Lesson plan for today (adapt to the student's level; do not read it aloud as a list):",
+      `- Goals: ${plan.goals.join("; ")}`,
+      `- Key words to teach and reuse (word / emoji / Korean): ${plan.vocabulary.map((v) => `${v.word} / ${v.emoji} / ${v.ko}`).join(", ")}`,
+      `- Sentence frames: ${plan.frames.join(" | ")}`,
+      `- Role-play idea: ${plan.rolePlay}`,
+      `- Game idea: ${plan.game}`,
+    ].join("\n");
+  }
+  function lessonPhase(f) { return f < 0.15 ? "warm-up" : f < 0.55 ? "topic talk" : f < 0.85 ? "role-play or game" : "wrap-up"; }
 
   const JSON_SHAPE = `
 
@@ -272,7 +291,7 @@ Reply with ONLY one JSON object, no other text:
     board: null, prevBoard: null, mood: "neutral", mouth: 0,
     interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false,
     busy: false, ctl: null, sample: null, sampleGone: false,
-    micState: "unknown", rec: null, report: null, error: null, notice: null, showLog: false, tts: false,
+    micState: "unknown", rec: null, report: null, error: null, notice: null, showLog: false, tts: false, lastPhase: null,
   };
   let mouthTimer = null;
 
@@ -315,7 +334,7 @@ Reply with ONLY one JSON object, no other text:
   }
   function instructions() {
     const p = S.profile, topic = TOPICS.find((t) => t.id === p.topicId), lv = LEVELS.find((l) => l.id === p.level);
-    return CORE + `\n\n# This lesson\nStudent: ${p.name}, age ${p.age}.\nLesson length: ${p.durationMin} minutes.\nToday's topic: ${topic.en}.\n${lv.guide}` + JSON_SHAPE;
+    return CORE + `\n\n# This lesson\nStudent: ${p.name}, age ${p.age}.\nLesson length: ${p.durationMin} minutes.\nToday's topic: ${topic.en}.\n${lv.guide}\n\n${lessonPlanText(p.topicId)}` + JSON_SHAPE;
   }
   // 관대한 파서: 스키마 강제가 없으므로 살릴 수 있는 것만 살린다.
   function coerceOutput(raw) {
@@ -458,11 +477,17 @@ Reply with ONLY one JSON object, no other text:
     if (S.startedAt === null) S.startedAt = Date.now();
     const g = gate();
     if (g === "closed") { S.busy = false; return finishLesson(); }
-    const note = g === "grace" || input.kind === "timeup" ? "[Time is up]" : timeNote(remainingSec());
+    const left = remainingSec();
+    const note = g === "grace" || input.kind === "timeup" ? "[Time is up]" : timeNote(left);
+    const phase = lessonPhase(1 - left / (S.profile.durationMin * 60));
+    let phaseNote = null;
+    if (input.kind === "start") S.lastPhase = "warm-up";
+    else if (phase !== S.lastPhase) { phaseNote = `[Lesson phase: ${phase}]`; S.lastPhase = phase; }
     const parts = [];
     if (input.kind === "start") parts.push("[Lesson starts]");
     else if (input.kind === "silence") parts.push(`[The student did not answer for ${SILENCE_SEC} seconds]`);
     else if (input.kind === "speech") parts.push(input.text.trim());
+    if (phaseNote && !note) parts.push(phaseNote);
     if (note) parts.push(note);
     const content = parts.join("\n");
     S.turns.push({ role: "user", content });
@@ -696,7 +721,7 @@ Reply with ONLY one JSON object of this exact shape:
       el("div", { class: "card" },
         el("details", {}, el("summary", {}, "대화 전체 보기"), el("div", { class: "prompt-box", style: "margin-top:8px" }, S.shown.map((t) => `${t.role === "tutor" ? "Coco" : p.name}: ${t.text}${t.hint ? "\n  힌트: " + t.hint : ""}`).join("\n"))),
         el("div", { class: "field" }, el("button", { class: "btn quiet", type: "button", onclick: () => {
-          Object.assign(S, { phase: "setup", profile: null, turns: [], shown: [], board: null, prevBoard: null, mood: "neutral", mouth: 0, interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false, busy: false, report: null, error: null, notice: null, showLog: false });
+          Object.assign(S, { phase: "setup", profile: null, turns: [], shown: [], board: null, prevBoard: null, mood: "neutral", mouth: 0, interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false, busy: false, report: null, error: null, notice: null, showLog: false, lastPhase: null });
           render();
         } }, "새 수업 시작하기")),
       ),

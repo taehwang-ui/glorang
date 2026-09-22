@@ -1,6 +1,7 @@
 import { z } from "zod";
 import Anthropic from "@anthropic-ai/sdk";
 import { sessionStore } from "@/lib/tutor/store";
+import { loadOwnedSession } from "@/lib/tutor/access";
 import { runTurn, type TurnEvent, type TurnInput } from "@/lib/tutor/turn";
 
 const TurnBody = z.discriminatedUnion("kind", [
@@ -16,8 +17,9 @@ const TurnBody = z.discriminatedUnion("kind", [
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const session = await sessionStore.get(id);
-  if (!session) return Response.json({ error: "not found" }, { status: 404 });
+  const loaded = await loadOwnedSession(id);
+  if ("error" in loaded) return loaded.error;
+  const { session } = loaded;
   if (session.status === "ended") return Response.json({ error: "lesson is over" }, { status: 410 });
   if (session.busy) return Response.json({ error: "turn in progress" }, { status: 409 });
 

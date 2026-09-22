@@ -20,10 +20,14 @@ export interface TutorSession {
   report: LessonReport | null;
   /** 동시 턴 방지 락 */
   busy: boolean;
+  /** 마지막으로 알린 수업 단계 (단계가 바뀔 때만 노트를 보낸다) */
+  lastPhase: string | null;
+  /** 진입 쿠키의 방문자 ID. 있으면 소유자만 접근 가능 */
+  ownerId: string | null;
 }
 
 export interface SessionStore {
-  create(input: Omit<TutorSession, "id" | "status" | "createdAt" | "startedAt" | "endedAt" | "messages" | "usage" | "report" | "busy">): Promise<TutorSession>;
+  create(input: Omit<TutorSession, "id" | "status" | "createdAt" | "startedAt" | "endedAt" | "messages" | "usage" | "report" | "busy" | "lastPhase">): Promise<TutorSession>;
   get(id: string): Promise<TutorSession | null>;
   save(session: TutorSession): Promise<void>;
 }
@@ -47,6 +51,7 @@ class MemoryStore implements SessionStore {
       usage: emptyUsage(),
       report: null,
       busy: false,
+      lastPhase: null,
     };
     this.map.set(session.id, session);
     return session;

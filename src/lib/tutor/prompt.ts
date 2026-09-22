@@ -1,4 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
+import { lessonPlanText } from "./lessons";
 
 export type Level = "starter" | "basic" | "intermediate";
 
@@ -38,7 +39,7 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
 # How to lead
 - You drive the lesson. Every turn ends with exactly one question or one simple instruction that invites the student to speak.
 - Keep each turn short: one to three short sentences. Never lecture or explain at length.
-- Shape the lesson as warm-up, topic talk, a mini role-play or quick game, then wrap-up. Pace it using the time notes you receive.
+- Shape the lesson as warm-up, topic talk, a mini role-play or quick game, then wrap-up. Pace it using the phase and time notes you receive, and use the lesson plan's words, frames, role-play and game.
 - Follow the lesson topic, but follow the student's interest when they show one.
 - Ask questions the student can actually answer at their level. If they stall, offer two choices ("Do you like dogs or cats?") or a sentence frame ("You can say: I like ...").
 - Praise effort specifically ("Nice, you used 'because'!"), not generically. Do not praise every single turn.
@@ -76,6 +77,7 @@ Refer to the board naturally ("Look at the board", "Can you read this?"). Keep b
 # Notes you will see in square brackets (from the lesson system, not the student)
 - [Lesson starts] : greet the student by name in one short sentence, then ask your first easy question.
 - [The student did not answer for N seconds] : re-ask more simply with two choices. Do not scold.
+- [Lesson phase: ...] : move into that part of the lesson within a turn or two (warm-up, topic talk, role-play or game, wrap-up). Introduce a role-play or game briefly and clearly, then play it.
 - [Time left: N minutes] : begin wrapping up. Do not mention the clock to the student.
 - [Time is up] : say goodbye warmly in one or two sentences, naming one thing they did well, put a sticker on the board, and end with no question.`;
 
@@ -103,6 +105,8 @@ export function buildSystemBlocks(profile: SessionProfile): Anthropic.Beta.BetaT
     `Lesson length: ${profile.durationMin} minutes.`,
     `Today's topic: ${topic.en}.`,
     LEVEL_GUIDANCE[profile.level],
+    "",
+    lessonPlanText(profile.topicId),
   ].join("\n");
 
   return [

@@ -5,6 +5,7 @@ import { buildSystemBlocks, timeNote } from "./prompt";
 import { TurnOutputSchema, type TurnOutput } from "./board";
 import type { TutorSession } from "./store";
 import { remainingSec, turnGate } from "@/lib/billing/meter";
+import { lessonPhase } from "./lessons";
 
 /** 클라이언트가 보내는 턴 종류 */
 export type TurnInput =
@@ -25,7 +26,7 @@ export type TurnEvent =
   | { type: "error"; message: string };
 
 /** 사용자 메시지 본문 + 시스템 노트 블록. 학생 발화는 따로 두어 리포트에서 구분한다. */
-export function buildUserContent(input: TurnInput, note: string | null): Anthropic.Beta.BetaTextBlockParam[] {
+export function buildUserContent(input: TurnInput, note: string | null, phaseNote: string | null = null): Anthropic.Beta.BetaTextBlockParam[] {
   const blocks: Anthropic.Beta.BetaTextBlockParam[] = [];
   if (input.kind === "start") blocks.push({ type: "text", text: "[Lesson starts]" });
   else if (input.kind === "silence")
@@ -33,6 +34,7 @@ export function buildUserContent(input: TurnInput, note: string | null): Anthrop
   else if (input.kind === "speech") blocks.push({ type: "text", text: input.text.trim() });
   // timeup: 시스템 노트만 보낸다. 노트가 아직 없으면(시계 오차) 강제로 붙인다.
   const finalNote = input.kind === "timeup" ? (note ?? "[Time is up]") : note;
+  if (phaseNote && !finalNote) blocks.push({ type: "text", text: phaseNote });
   if (finalNote) blocks.push({ type: "text", text: finalNote });
   return blocks;
 }
@@ -86,7 +88,17 @@ export async function* runTurn(session: TutorSession, input: TurnInput): AsyncGe
   const left = remainingSec(clock, now);
   const note = gate === "grace" || input.kind === "timeup" ? "[Time is up]" : timeNote(left);
 
-  const userMessage: Anthropic.Beta.BetaMessageParam = { role: "user", content: buildUserContent(input, note) };
+  // 수업 단계 노트: 경과 비율로 계산하고, 단계가 바뀔 때만 보낸다 (첫 턴은 warm-up 이 자명하므로 생략).
+  const elapsed = 1 - left / (session.profile.durationMin * 60);
+  const phase = lessonPhase(elapsed);
+  let phaseNote: string | null = null;
+  if (input.kind !== "start" && phase !== session.lastPhase) {
+    phaseNote = `[Lesson phase: ${phase}]`;
+    session.lastPhase = phase;
+  }
+  if (input.kind === "start") session.lastPhase = "warm-up";
+
+  const userMessage: Anthropic.Beta.BetaMessageParam = { role: "user", content: buildUserContent(input, note, phaseNote) };
   const request = withHistoryBreakpoint([...session.messages, userMessage]);
 
   yield { type: "thinking" };
