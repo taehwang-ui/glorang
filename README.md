@@ -38,6 +38,16 @@ claude.ai Artifact 로 열면 API 키 없이 바로 수업을 해볼 수 있습�
 - 다시 게시하려면 이 세션에서 만든 Artifact 링크를 쓰거나, Claude 에게 `demo/coco-demo.html` 을 Artifact 로 올려 달라고 하면 됩니다.
 - 선생님 지침(`prompt.ts`)을 바꾸면 `node scripts/sync-demo-prompt.mjs` 로 데모에도 반영합니다.
 
+### 1-b) 마이크까지: GitHub Pages 주소로 열기 (`docs/index.html`)
+
+Artifact 프레임은 마이크를 막지만, 같은 데모를 일반 웹 주소로 열면 마이크·음성이 동작합니다. 이때는 보시는 분의 Anthropic API 키로 브라우저가 Claude 를 직접 호출합니다.
+
+1. GitHub 저장소 Settings → Pages → Source "Deploy from a branch" → Branch `claude/ai-english-tutor-7f9zrr`, 폴더 `/docs` → Save.
+2. 1~2분 뒤 `https://taehwang-ui.github.io/glorang/` 을 Chrome 으로 엽니다.
+3. 상세페이지 목업의 "테스트 설정"에 API 키를 넣고 저장한 뒤 [시작하기].
+
+키는 그 브라우저에만 저장됩니다. 지출 한도를 건 테스트 전용 키를 쓰고 끝나면 "키 지우기"를 누르세요. 운영 서비스에는 이 방식이 없고 서버(Next.js 앱)가 키를 갖습니다.
+
 ### 2) 실제 앱: 로컬 실행 (음성 입력 포함)
 
 ```bash
