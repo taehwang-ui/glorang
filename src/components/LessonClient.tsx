@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SessionView } from "@/lib/tutor/view";
 import type { TurnEvent, TurnInput } from "@/lib/tutor/turn";
+import type { BoardCommand, Mood, TurnOutput } from "@/lib/tutor/board";
+import { topicById } from "@/lib/tutor/prompt";
 import { cancelSpeech, listenOnce, speak, speechSupport, warmVoices, type Recognizer } from "@/lib/speech";
+import Avatar, { type AvatarState } from "./Avatar";
+import Board from "./Board";
 import ReportView from "./ReportView";
 
 type Phase = "ready" | "thinking" | "speaking" | "listening" | "idle" | "ending" | "report";
@@ -21,12 +25,16 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
   const [session, setSession] = useState<SessionView>(initial);
   const [phase, setPhase] = useState<Phase>(initial.status === "ended" ? "report" : "ready");
   const [turns, setTurns] = useState<Turn[]>([]);
-  const [live, setLive] = useState(""); // 스트리밍 중인 튜터 발화
-  const [interim, setInterim] = useState(""); // 인식 중인 학생 발화
+  const [interim, setInterim] = useState("");
   const [typed, setTyped] = useState("");
   const [remaining, setRemaining] = useState(initial.remainingSec);
   const [error, setError] = useState<string | null>(null);
   const [support] = useState(() => speechSupport());
+  const [board, setBoard] = useState<BoardCommand | null>(null);
+  const [prevBoard, setPrevBoard] = useState<BoardCommand | null>(null);
+  const [mood, setMood] = useState<Mood>("neutral");
+  const [mouth, setMouth] = useState(0);
+  const [showLog, setShowLog] = useState(false);
 
   const busy = useRef(false);
   const recognizer = useRef<Recognizer | null>(null);
@@ -35,12 +43,15 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
   const timeUpSent = useRef(false);
   const phaseRef = useRef<Phase>(phase);
   phaseRef.current = phase;
+  const mouthTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+  const topic = topicById(session.profile.topicId);
 
   useEffect(() => {
     warmVoices();
     return () => {
       recognizer.current?.abort();
       cancelSpeech();
+      if (mouthTimer.current) clearInterval(mouthTimer.current);
     };
   }, []);
 
@@ -60,15 +71,39 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
     setInterim("");
   }, []);
 
+  // 아바타 입: TTS 동안 무작위로 벌렸다 닫고, 단어 경계에서 크게 연다.
+  const startMouth = useCallback(() => {
+    if (mouthTimer.current) clearInterval(mouthTimer.current);
+    mouthTimer.current = setInterval(() => setMouth((m) => (m > 0.3 ? 0.05 : 0.35 + Math.random() * 0.65)), 110);
+  }, []);
+  const stopMouth = useCallback(() => {
+    if (mouthTimer.current) clearInterval(mouthTimer.current);
+    mouthTimer.current = null;
+    setMouth(0);
+  }, []);
+
+  const speakOutput = useCallback(
+    async (output: TurnOutput) => {
+      setPhase("speaking");
+      await speak(output.say, session.profile.level === "starter" ? 0.88 : 0.95, {
+        onStart: startMouth,
+        onBoundary: () => setMouth(1),
+        onEnd: stopMouth,
+      });
+      stopMouth();
+    },
+    [session.profile.level, startMouth, stopMouth],
+  );
+
   const sendTurn = useCallback(
     async (input: TurnInput) => {
       if (busy.current || phaseRef.current === "report" || phaseRef.current === "ending") return;
       busy.current = true;
       stopListening();
       cancelSpeech();
+      stopMouth();
       setError(null);
       setPhase("thinking");
-      setLive("");
       if (input.kind === "speech") setTurns((t) => [...t, { role: "student", text: input.text }]);
 
       let done: Extract<TurnEvent, { type: "done" }> | null = null;
@@ -87,7 +122,6 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
         const reader = res.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
-        let text = "";
         while (true) {
           const { value, done: eof } = await reader.read();
           if (eof) break;
@@ -98,14 +132,8 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
             buffer = buffer.slice(nl + 1);
             if (!line) continue;
             const ev = JSON.parse(line) as TurnEvent;
-            if (ev.type === "delta") {
-              text += ev.text;
-              setLive(text);
-            } else if (ev.type === "done") {
-              done = ev;
-            } else if (ev.type === "error") {
-              throw new Error(ev.message);
-            }
+            if (ev.type === "done") done = ev;
+            else if (ev.type === "error") throw new Error(ev.message);
           }
         }
       } catch (err) {
@@ -123,11 +151,15 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
       }
 
       const finished = done;
-      setLive("");
-      setTurns((t) => [...t, { role: "tutor", text: finished.speech, hint: finished.hint }]);
+      const out = finished.output;
+      setTurns((t) => [...t, { role: "tutor", text: out.say, hint: out.hint }]);
       setRemaining(finished.remainingSec);
-      setPhase("speaking");
-      await speak(finished.speech, session.profile.level === "starter" ? 0.88 : 0.95);
+      setMood(out.mood);
+      if (out.board) {
+        setPrevBoard(board);
+        setBoard(out.board);
+      }
+      await speakOutput(out);
       busy.current = false;
 
       if (finished.ended) {
@@ -137,7 +169,7 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
       startListening();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [session.id, session.profile.level, stopListening],
+    [session.id, stopListening, stopMouth, speakOutput, board],
   );
 
   const startListening = useCallback(() => {
@@ -191,6 +223,7 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
   async function finishLesson() {
     stopListening();
     cancelSpeech();
+    stopMouth();
     setPhase("ending");
     try {
       const res = await fetch(`/api/sessions/${session.id}/report`, { method: "POST" });
@@ -211,20 +244,27 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
       recognizer.current?.stop(); // 지금까지 들은 내용으로 확정
       return;
     }
-    if (phase === "speaking") cancelSpeech();
+    if (phase === "speaking") {
+      cancelSpeech();
+      stopMouth();
+    }
     if (phase === "idle" || phase === "speaking") {
       silencePrompts.current = 0;
       startListening();
     }
   }
 
-  function onTypedSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const text = typed.trim();
-    if (!text) return;
+  function submitText(text: string) {
+    const t = text.trim();
+    if (!t) return;
     setTyped("");
     silencePrompts.current = 0;
-    void sendTurn({ kind: "speech", text });
+    if (phase === "speaking") {
+      cancelSpeech();
+      stopMouth();
+      busy.current = false;
+    }
+    void sendTurn({ kind: "speech", text: t });
   }
 
   const studentTurns = turns.filter((t) => t.role === "student").length;
@@ -236,105 +276,134 @@ export default function LessonClient({ initial }: { initial: SessionView }) {
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
   const lastTutor = [...turns].reverse().find((t) => t.role === "tutor");
+  const lastStudent = [...turns].reverse().find((t) => t.role === "student");
+  const avatarState: AvatarState =
+    phase === "speaking" ? "speaking" : phase === "thinking" ? "thinking" : phase === "listening" ? "listening" : "idle";
   const statusText: Record<Phase, string> = {
     ready: "준비되면 아래 버튼을 눌러 인사해요",
-    thinking: "선생님이 생각하는 중...",
-    speaking: "선생님이 말하는 중 (누르면 바로 대답할 수 있어요)",
+    thinking: "선생님이 생각하는 중",
+    speaking: "선생님이 말하는 중",
     listening: "듣고 있어요. 영어로 말해 보세요!",
     idle: "마이크를 누르고 말해 보세요",
-    ending: "리포트를 만드는 중...",
+    ending: "리포트를 만드는 중",
     report: "",
   };
+  const busyPhase = phase === "thinking" || phase === "ending";
+  // 퀴즈 정답은 다음 턴에 공개: 보드가 바뀌지 않았는데 새 튜터 발화가 나오면 공개 상태로 본다.
+  const revealAnswer = board?.type === "quiz" && prevBoard === board;
+
+  if (phase === "ready") {
+    return (
+      <div className="lesson">
+        <div className="topbar">
+          <div className="brand">
+            코코 <span>선생님</span>
+          </div>
+          <span className="pill sky timer">{mm}:{ss}</span>
+        </div>
+        <div className="card">
+          <h1>{session.profile.studentName}, 준비됐나요?</h1>
+          <p className="muted">
+            {session.profile.durationMin}분 동안 코코 선생님과 영어로 이야기해요. 선생님이 화면에 카드와 그림을 보여주면서 수업해요. 선생님 말이 끝나면 마이크가 켜져요.
+          </p>
+          {!support.stt && (
+            <p className="notice">이 브라우저는 음성 인식을 지원하지 않아요. Chrome 이나 Edge 를 쓰면 말로 대답할 수 있고, 지금은 글로 대답할 수 있어요.</p>
+          )}
+          {error && <p className="error">{error}</p>}
+          <button className="btn" type="button" onClick={() => void sendTurn({ kind: "start" })}>
+            선생님과 인사하기 🎤
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="lesson">
-      <div className="topbar">
+    <div className="zoom">
+      <div className="zoom-top">
         <div className="brand">
-          코코 <span>선생님</span>
+          코코 <span>선생님</span> <span className="muted">· {topic.label}</span>
         </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span className={`pill sky timer ${remaining <= 60 && startedAt.current ? "low" : ""}`}>
-            {mm}:{ss}
-          </span>
-          {phase !== "ready" && (
-            <button className="btn ghost" type="button" onClick={() => void finishLesson()} disabled={phase === "ending"}>
-              끝내기
-            </button>
-          )}
+        <div className="zoom-top-right">
+          <span className={`pill sky timer ${remaining <= 60 && startedAt.current ? "low" : ""}`}>{mm}:{ss}</span>
+          <button className="btn ghost" type="button" onClick={() => void finishLesson()} disabled={phase === "ending"}>
+            끝내기
+          </button>
         </div>
       </div>
 
-      <div className="stage">
-        {phase === "ready" ? (
-          <div className="card">
-            <h1>{session.profile.studentName}, 준비됐나요?</h1>
-            <p className="muted">
-              {session.profile.durationMin}분 동안 코코 선생님과 영어로 이야기해요. 선생님 말이 끝나면 마이크가 켜져요. 잘 모르겠으면 그냥 아는 만큼만 말해도 괜찮아요.
-            </p>
-            {!support.stt && (
-              <p className="notice">이 브라우저는 음성 인식을 지원하지 않아요. Chrome 이나 Edge 를 쓰면 말로 대답할 수 있고, 지금은 글로 대답할 수 있어요.</p>
-            )}
-            <button className="btn" type="button" onClick={() => void sendTurn({ kind: "start" })}>
-              선생님과 인사하기 🎤
-            </button>
+      <div className="zoom-main">
+        <div className="share">
+          <div className="share-bar">
+            <span className="share-dot" /> Coco is sharing the board
           </div>
-        ) : (
-          <>
-            <div className="transcript">
-              {turns.slice(0, -1).map((t, i) =>
-                t.role === "tutor" ? (
-                  <div className="tutor-bubble" key={i}>
-                    {t.text}
-                    {t.hint && <div className="hint">힌트: {t.hint}</div>}
-                  </div>
-                ) : (
-                  <div className="student-bubble" key={i}>{t.text}</div>
-                ),
-              )}
+          <Board command={board} topicLabel={topic.label} topicEn={topic.en} onPick={(t) => submitText(t)} revealAnswer={revealAnswer} />
+          <div className="caption">
+            <div className="caption-tutor">
+              {phase === "thinking" ? <span className="dots">생각하는 중</span> : lastTutor?.text}
+              {phase !== "thinking" && lastTutor?.hint && <div className="hint">힌트: {lastTutor.hint}</div>}
             </div>
-            {(live || phase === "thinking" || lastTutor) && (
-              <div className="tutor-bubble">
-                <div className="speaker"><span className="avatar">C</span> Coco</div>
-                {live || (phase === "thinking" ? "..." : lastTutor?.text)}
-                {!live && phase !== "thinking" && lastTutor?.hint && <div className="hint">힌트: {lastTutor.hint}</div>}
-              </div>
-            )}
-            {turns.length > 0 && turns[turns.length - 1].role === "student" && (
-              <div className="student-bubble">{turns[turns.length - 1].text}</div>
-            )}
-            {interim && <div className="student-bubble interim">{interim}</div>}
-          </>
-        )}
+          </div>
+        </div>
+
+        <div className="tiles">
+          <div className={`tile tile-tutor ${phase === "speaking" ? "active" : ""}`}>
+            <Avatar mood={mood} state={avatarState} mouth={mouth} />
+            <div className="tile-name">Coco</div>
+          </div>
+          <div className={`tile tile-student ${phase === "listening" ? "active" : ""}`}>
+            <div className="student-face">{session.profile.studentName.slice(0, 1).toUpperCase()}</div>
+            <div className="student-said">{interim || lastStudent?.text || (phase === "listening" ? "…" : "")}</div>
+            <div className="tile-name">{session.profile.studentName}</div>
+          </div>
+        </div>
       </div>
 
-      {phase !== "ready" && (
-        <div className="controls">
-          {error && <p className="error">{error}</p>}
+      <div className="controls">
+        {error && <p className="error">{error}</p>}
+        <div className="control-row">
           <button
             className={`mic ${phase === "listening" ? "listening" : ""} ${phase === "speaking" ? "speaking" : ""}`}
             type="button"
             onClick={onMicClick}
-            disabled={phase === "thinking" || phase === "ending" || !support.stt}
+            disabled={busyPhase || !support.stt}
             aria-label="마이크"
           >
             {phase === "listening" ? "👂" : "🎤"}
           </button>
-          <div className="status">{statusText[phase]}</div>
-          <form className="typebar" onSubmit={onTypedSubmit}>
-            <input
-              value={typed}
-              onChange={(e) => setTyped(e.target.value)}
-              placeholder="글로 대답하기 (선택)"
-              disabled={phase === "thinking" || phase === "ending"}
-            />
-            <button type="submit" disabled={!typed.trim() || phase === "thinking" || phase === "ending"}>보내기</button>
+          <form
+            className="typebar"
+            onSubmit={(e) => {
+              e.preventDefault();
+              submitText(typed);
+            }}
+          >
+            <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="글로 대답하기 (선택)" disabled={busyPhase} />
+            <button type="submit" disabled={!typed.trim() || busyPhase}>
+              보내기
+            </button>
           </form>
-          <div className="footer-meta">
-            <span>{session.profile.durationMin}분 · {session.priceKrw.toLocaleString("ko-KR")}원</span>
-            <span>{session.model}</span>
-          </div>
         </div>
-      )}
+        <div className="status">{statusText[phase]}</div>
+        <div className="footer-meta">
+          <button className="btn ghost" type="button" onClick={() => setShowLog((v) => !v)}>
+            {showLog ? "대화 기록 닫기" : `대화 기록 (${turns.length})`}
+          </button>
+          <span>
+            {session.profile.durationMin}분 · {session.priceKrw.toLocaleString("ko-KR")}원 · {session.model}
+          </span>
+        </div>
+        {showLog && (
+          <div className="log">
+            {turns.map((t, i) => (
+              <div key={i} className={`log-line ${t.role}`}>
+                <b>{t.role === "tutor" ? "Coco" : session.profile.studentName}</b> {t.text}
+                {t.hint && <span className="log-hint"> · 힌트: {t.hint}</span>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -3,11 +3,23 @@ import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { anthropic, modelRequestOptions } from "./claude";
 import { LessonReportSchema, type LessonReport } from "./report-schema";
 import { topicById, type SessionProfile } from "./prompt";
+import { coerceTurnOutput } from "./board";
 
 const REPORT_SYSTEM = `You write short, honest lesson reports for parents of Korean children after a 1:1 English speaking lesson with an AI tutor.
 Write Korean fields in warm, plain Korean (존댓말). Be specific: quote what the student actually said.
 Do not exaggerate. If the student spoke very little, say so kindly and suggest what would help.
 Ignore transcription noise: do not count obviously garbled speech-to-text as a grammar error.`;
+
+/** assistant 턴(JSON)에서 말한 내용과 보드 요약만 뽑는다. */
+function assistantLine(raw: string): string {
+  try {
+    const o = coerceTurnOutput(JSON.parse(raw));
+    const board = o.board ? ` [board: ${o.board.type}]` : "";
+    return `${o.say}${board}`;
+  } catch {
+    return raw;
+  }
+}
 
 export function transcriptText(messages: Anthropic.Beta.BetaMessageParam[]): string {
   const lines: string[] = [];
@@ -20,7 +32,7 @@ export function transcriptText(messages: Anthropic.Beta.BetaMessageParam[]): str
             .filter(Boolean)
             .join("\n");
     if (!text) continue;
-    lines.push(`${m.role === "user" ? "Student" : "Tutor"}: ${text}`);
+    lines.push(m.role === "user" ? `Student: ${text}` : `Tutor: ${assistantLine(text)}`);
   }
   return lines.join("\n");
 }

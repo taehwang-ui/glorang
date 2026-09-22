@@ -120,8 +120,15 @@ function pickVoice(): SpeechSynthesisVoice | null {
   return cachedVoice;
 }
 
+export interface SpeakHandlers {
+  onStart?: () => void;
+  /** 단어 경계마다 호출 (Chrome). 아바타 입 움직임에 쓴다. */
+  onBoundary?: () => void;
+  onEnd?: () => void;
+}
+
 /** 텍스트를 읽어주고 끝나면 resolve. TTS 미지원이면 즉시 resolve. */
-export function speak(text: string, rate = 0.95): Promise<void> {
+export function speak(text: string, rate = 0.95, handlers: SpeakHandlers = {}): Promise<void> {
   if (typeof window === "undefined" || !("speechSynthesis" in window) || !text.trim()) return Promise.resolve();
   window.speechSynthesis.cancel();
   return new Promise((resolve) => {
@@ -131,9 +138,22 @@ export function speak(text: string, rate = 0.95): Promise<void> {
     u.pitch = 1.05;
     const voice = pickVoice();
     if (voice) u.voice = voice;
-    u.onend = () => resolve();
-    u.onerror = () => resolve();
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      handlers.onEnd?.();
+      resolve();
+    };
+    u.onstart = () => handlers.onStart?.();
+    u.onboundary = () => handlers.onBoundary?.();
+    u.onend = finish;
+    u.onerror = finish;
     window.speechSynthesis.speak(u);
+    // 일부 브라우저는 이벤트를 주지 않는다. 말이 시작되지도 않으면 멈춤 방지용으로 끝낸다.
+    setTimeout(() => {
+      if (!window.speechSynthesis.speaking && !window.speechSynthesis.pending) finish();
+    }, 800);
   });
 }
 

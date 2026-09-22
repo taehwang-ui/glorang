@@ -20,74 +20,50 @@
     --hint-ink: #6b4d00;
     --danger: #d8434f;
     --danger-soft: #fde4e6;
+    --stage: #1f2430;
+    --stage-ink: #ffffff;
+    --board: #fffdf7;
+    --board-ink: #1e2a2b;
+    --board-muted: #6b7470;
     --shadow: 0 6px 20px rgba(30, 42, 43, 0.08);
     --radius: 18px;
+    --av-fur: #ffb15c; --av-fur-dark: #e08a2f; --av-belly: #fff1d6; --av-ear: #ffd9a8; --av-blush: #ff8a80; --av-line: #3b2a1a; --av-mouth: #7a2e2e; --av-tongue: #ff8aa0;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
       color-scheme: dark;
-      --bg: #141b1a;
-      --surface: #1e2726;
-      --surface-2: #26312f;
-      --ink: #eef3f0;
-      --muted: #9fb0ab;
-      --line: #34413e;
-      --accent: #ff7d5e;
-      --accent-ink: #1a0d09;
-      --accent-soft: #4a2a22;
-      --mint: #3fd0a8;
-      --mint-soft: #1f3f36;
-      --sky: #6b9bff;
-      --sky-ink: #0b1630;
-      --hint-bg: #4a3d12;
-      --hint-ink: #ffe8a3;
-      --danger: #ff6b76;
-      --danger-soft: #4a2226;
+      --bg: #141b1a; --surface: #1e2726; --surface-2: #26312f; --ink: #eef3f0; --muted: #9fb0ab; --line: #34413e;
+      --accent: #ff7d5e; --accent-ink: #1a0d09; --accent-soft: #4a2a22; --mint: #3fd0a8; --mint-soft: #1f3f36;
+      --sky: #6b9bff; --sky-ink: #0b1630; --hint-bg: #4a3d12; --hint-ink: #ffe8a3; --danger: #ff6b76; --danger-soft: #4a2226;
+      --stage: #0f1419; --stage-ink: #ffffff; --board: #fbf7ec; --board-ink: #1e2a2b; --board-muted: #6b7470;
       --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
     }
   }
   :root[data-theme="dark"] {
     color-scheme: dark;
-    --bg: #141b1a;
-    --surface: #1e2726;
-    --surface-2: #26312f;
-    --ink: #eef3f0;
-    --muted: #9fb0ab;
-    --line: #34413e;
-    --accent: #ff7d5e;
-    --accent-ink: #1a0d09;
-    --accent-soft: #4a2a22;
-    --mint: #3fd0a8;
-    --mint-soft: #1f3f36;
-    --sky: #6b9bff;
-    --sky-ink: #0b1630;
-    --hint-bg: #4a3d12;
-    --hint-ink: #ffe8a3;
-    --danger: #ff6b76;
-    --danger-soft: #4a2226;
+    --bg: #141b1a; --surface: #1e2726; --surface-2: #26312f; --ink: #eef3f0; --muted: #9fb0ab; --line: #34413e;
+    --accent: #ff7d5e; --accent-ink: #1a0d09; --accent-soft: #4a2a22; --mint: #3fd0a8; --mint-soft: #1f3f36;
+    --sky: #6b9bff; --sky-ink: #0b1630; --hint-bg: #4a3d12; --hint-ink: #ffe8a3; --danger: #ff6b76; --danger-soft: #4a2226;
+    --stage: #0f1419; --stage-ink: #ffffff; --board: #fbf7ec; --board-ink: #1e2a2b; --board-muted: #6b7470;
     --shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   }
 
   html, body { height: 100%; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif;
-    font-size: 16px;
-    line-height: 1.5;
-  }
+  body { background: var(--bg); color: var(--ink); font-family: "Noto Sans KR", "Apple SD Gothic Neo", system-ui, sans-serif; font-size: 16px; line-height: 1.5; }
   * { box-sizing: border-box; }
   button, input { font: inherit; color: inherit; }
   button { cursor: pointer; }
   button:focus-visible, input:focus-visible { outline: 3px solid var(--sky); outline-offset: 2px; }
 
-  .app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 24px; min-height: 100%; display: flex; flex-direction: column; }
-  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .app { max-width: 760px; margin: 0 auto; padding-inline: 16px; padding-block: 12px 24px; min-height: 100%; display: flex; flex-direction: column; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
   .logo { font-family: "Baloo 2", "Noto Sans KR", sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.01em; }
   .logo em { font-style: normal; color: var(--accent); }
+  .logo small { font-family: "Noto Sans KR", sans-serif; font-weight: 500; font-size: 13px; color: var(--muted); }
   .pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; font-size: 13px; font-weight: 700; background: var(--surface-2); color: var(--muted); }
   .pill.timer { font-variant-numeric: tabular-nums; background: var(--sky); color: var(--sky-ink); }
   .pill.timer.low { background: var(--danger); color: #fff; }
+  .right { display: flex; gap: 6px; align-items: center; }
 
   .card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; }
   .card + .card { margin-top: 12px; }
@@ -109,24 +85,59 @@
   .btn:disabled { opacity: .5; cursor: not-allowed; }
   .btn.quiet { background: var(--surface-2); color: var(--ink); }
   .btn.small { width: auto; padding: 7px 12px; font-size: 13px; border-radius: 10px; }
+  .btn.ghost { background: transparent; color: var(--muted); width: auto; padding: 6px 10px; font-size: 13px; }
 
   .note { border-radius: 12px; padding: 10px 12px; font-size: 14px; margin-top: 10px; }
   .note.warn { background: var(--hint-bg); color: var(--hint-ink); }
   .note.err { background: var(--danger-soft); color: var(--danger); }
   .note.info { background: var(--surface-2); color: var(--muted); }
+  .prompt-box { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.45; white-space: pre-wrap; background: var(--surface-2); border-radius: 12px; padding: 12px; max-height: 260px; overflow: auto; }
+  details summary { cursor: pointer; font-weight: 700; font-size: 14px; }
 
-  /* lesson */
-  .stage { flex: 1; display: flex; flex-direction: column; gap: 10px; padding-bottom: 8px; }
-  .bubble { max-width: 88%; padding: 12px 15px; border-radius: 20px; font-size: 17px; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
-  .bubble.tutor { align-self: flex-start; background: var(--surface); box-shadow: var(--shadow); border-bottom-left-radius: 6px; }
-  .bubble.tutor .who { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
-  .avatar { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: inline-grid; place-items: center; font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 12px; }
-  .bubble.student { align-self: flex-end; background: var(--sky); color: var(--sky-ink); border-bottom-right-radius: 6px; }
-  .bubble.student.interim { opacity: .6; }
-  .bubble.sys { align-self: center; background: transparent; color: var(--muted); font-size: 12px; padding: 2px 8px; }
-  .hint { margin-top: 8px; background: var(--hint-bg); color: var(--hint-ink); border-radius: 10px; padding: 8px 10px; font-size: 14px; }
+  /* ===== 줌형 수업 화면 ===== */
+  .zoom { display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .zoom-main { display: grid; grid-template-columns: minmax(0, 1fr) 176px; gap: 12px; align-items: start; }
+  @media (max-width: 640px) { .zoom-main { grid-template-columns: 1fr; } .tiles { flex-direction: row; } .tile { flex: 1; } }
+  .share { background: var(--stage); color: var(--stage-ink); border-radius: 18px; padding: 10px; box-shadow: var(--shadow); }
+  .share-bar { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: #9fe3c7; padding: 2px 6px 8px; }
+  .share-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 3px rgba(45,184,148,.25); }
+  .board { background: var(--board); color: var(--board-ink); border-radius: 12px; aspect-ratio: 16 / 10; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 16px; gap: 8px; overflow: hidden; }
+  .board-kicker { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--board-muted); font-weight: 700; }
+  .board-title { font-family: "Baloo 2", sans-serif; font-size: clamp(22px, 5vw, 36px); font-weight: 800; line-height: 1.2; }
+  .board-sub { color: var(--board-muted); font-size: 15px; }
+  .board-emoji { font-size: clamp(56px, 16vw, 96px); line-height: 1; }
+  .board-word-en { font-family: "Baloo 2", sans-serif; font-size: clamp(28px, 7vw, 46px); font-weight: 800; }
+  .board-word-ko { font-size: 18px; color: var(--board-muted); }
+  .board-frame-text { font-size: clamp(20px, 5vw, 30px); font-weight: 700; line-height: 1.5; }
+  .board-frame-text .blank { display: inline-block; border-bottom: 3px solid var(--accent); color: var(--accent); margin: 0 4px; }
+  .board-scene { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; font-size: clamp(40px, 11vw, 72px); line-height: 1.1; }
+  .board-question { font-size: clamp(18px, 4.5vw, 26px); font-weight: 800; }
+  .board-options { display: grid; gap: 8px; width: 100%; max-width: 360px; }
+  .board-option { border: 2px solid #d9e3dd; background: #fff; color: #1e2a2b; border-radius: 12px; padding: 10px 12px; font-size: 16px; text-align: left; }
+  .board-option b { display: inline-block; width: 22px; color: var(--accent); }
+  .board-option.correct { border-color: var(--mint); background: #d8f3ea; }
+  .board-sticker { background: radial-gradient(circle at 50% 40%, #fff3c4, var(--board) 70%); }
+  .sticker-emoji { font-size: clamp(64px, 20vw, 110px); line-height: 1; animation: pop .5s ease-out; }
+  .sticker-label { font-family: "Baloo 2", sans-serif; font-size: clamp(22px, 5vw, 32px); font-weight: 800; color: #b8461d; }
+  @keyframes pop { 0% { transform: scale(.4) rotate(-10deg); opacity: 0; } 70% { transform: scale(1.1) rotate(3deg); } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+  .caption { margin-top: 10px; padding: 10px 12px; background: rgba(255,255,255,.08); border-radius: 12px; font-size: 17px; line-height: 1.45; min-height: 46px; }
+  .caption .hint { margin-top: 8px; background: var(--hint-bg); color: var(--hint-ink); border-radius: 10px; padding: 8px 10px; font-size: 14px; }
   .dots::after { content: "…"; animation: blink 1s steps(3, end) infinite; }
   @keyframes blink { 50% { opacity: .3; } }
+
+  .tiles { display: flex; flex-direction: column; gap: 10px; }
+  .tile { background: var(--stage); border-radius: 14px; padding: 8px; position: relative; aspect-ratio: 4 / 3; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: var(--shadow); border: 3px solid transparent; }
+  .tile.active { border-color: var(--mint); }
+  .tile-name { position: absolute; left: 8px; bottom: 6px; font-size: 12px; font-weight: 700; color: #fff; background: rgba(0,0,0,.45); padding: 2px 8px; border-radius: 8px; }
+  .avatar-svg { width: 92%; height: 92%; }
+  .state-speaking .av-body { animation: bob .5s ease-in-out infinite; transform-origin: 100px 130px; }
+  .state-listening .av-body { animation: tilt 2.4s ease-in-out infinite; transform-origin: 100px 130px; }
+  .av-eyes { animation: blinkEyes 4.2s infinite; transform-origin: 100px 98px; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+  @keyframes tilt { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-4deg); } }
+  @keyframes blinkEyes { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+  .student-face { width: 56px; height: 56px; border-radius: 50%; background: var(--sky); color: #fff; display: grid; place-items: center; font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 24px; }
+  .student-said { margin-top: 8px; color: #fff; font-size: 14px; text-align: center; padding: 0 6px; max-height: 3.2em; overflow: hidden; }
 
   .dock { position: sticky; bottom: 0; padding-top: 10px; padding-bottom: env(safe-area-inset-bottom, 0px); background: linear-gradient(to top, var(--bg) 75%, transparent); }
   .status { text-align: center; font-size: 13px; font-weight: 700; color: var(--muted); min-height: 20px; margin-bottom: 8px; }
@@ -139,6 +150,9 @@
   .composer button:disabled { opacity: .45; cursor: not-allowed; }
   @keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(45,184,148,.4); } 50% { box-shadow: 0 0 0 10px rgba(45,184,148,0); } }
   .dock .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 8px; font-size: 12px; color: var(--muted); }
+  .log { margin-top: 8px; background: var(--surface); border-radius: 12px; padding: 10px 12px; max-height: 220px; overflow: auto; font-size: 14px; }
+  .log div { margin-bottom: 6px; }
+  .log b.t { color: var(--accent); } .log b.s { color: var(--sky); } .log .h { color: var(--hint-ink); }
 
   /* report */
   .praise { background: var(--accent-soft); border-radius: 14px; padding: 14px 16px; font-family: "Baloo 2", "Noto Sans KR", sans-serif; font-weight: 800; font-size: 20px; text-align: center; text-wrap: balance; }
@@ -152,16 +166,14 @@
   .fix s { color: var(--muted); }
   .fix b { color: var(--mint); }
   .fix .why { display: block; color: var(--muted); font-size: 13px; }
-  .prompt-box { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.45; white-space: pre-wrap; background: var(--surface-2); border-radius: 12px; padding: 12px; max-height: 260px; overflow: auto; }
-  details summary { cursor: pointer; font-weight: 700; font-size: 14px; }
 
-  @media (prefers-reduced-motion: reduce) { .composer .mic.on, .dots::after { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .composer .mic.on, .dots::after, .av-body, .av-eyes, .sticker-emoji { animation: none !important; } }
 </style>
 
 <div class="app" id="app">
   <div class="top">
-    <div class="logo">코코 <em>영어 선생님</em></div>
-    <div id="topRight"><span class="pill">데모 · 시간당 1,000원</span></div>
+    <div class="logo" id="logo">코코 <em>영어 선생님</em></div>
+    <div class="right" id="topRight"><span class="pill">데모 · 시간당 1,000원</span></div>
   </div>
   <div id="view"></div>
 </div>
@@ -170,7 +182,9 @@
 (() => {
   "use strict";
 
-  // ---------- 선생님 지침 (앱의 src/lib/tutor/prompt.ts 와 같은 내용) ----------
+  // ---------- 선생님 지침 ----------
+  // 앱의 src/lib/tutor/prompt.ts 와 같은 내용. `node scripts/sync-demo-prompt.mjs` 로 동기화한다.
+  /* PROMPT:BEGIN */
   const CORE = `You are Coco, a warm, playful 1:1 English speaking tutor for Korean children on Gguge (꾸그), an online class platform for kids.
 
 Your job is to LEAD a spoken conversation lesson. The student hears your words through text-to-speech and answers by speaking. Everything you write is spoken aloud, so write the way a friendly teacher talks.
@@ -190,9 +204,19 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
 - If the transcript looks garbled or unclear, kindly ask them to say it once more. Never say "wrong".
 
 # Language
-- Speak English only in your spoken text. Do not write Korean in it.
-- Exception, a hint line: if the student seems lost (says "I don't know", answers in Korean, or stays silent), you may add ONE final line that starts with "HINT: " followed by a short Korean hint, either the meaning of your question or the exact English sentence they could say. The hint is shown as text and is not spoken. Use it often for starters, sometimes for basic, rarely for intermediate.
+- Speak English only in "say". Do not put Korean in it.
+- "hint": if the student seems lost (says "I don't know", answers in Korean, or stays silent), give a short Korean hint, either the meaning of your question or the exact English sentence they could say. The hint is shown as text and is not spoken. Otherwise null. Use it often for starters, sometimes for basic, rarely for intermediate.
 - If the student speaks Korean, understand it, answer in English, and give them the English words they needed.
+
+# Board (the shared screen) and mood
+You teach next to a shared board the student can see, like a teacher sharing a screen. Each turn you may put ONE thing on the board, or leave it as it is (board: null). Use the board about every second or third turn, when it helps the student speak:
+- word_card: a key word with an emoji and its Korean meaning, when you introduce or recast a word.
+- sentence_frame: a fill-in frame like "I like ___ because ___." with an example, when the student needs a structure to answer.
+- picture: an emoji scene (2 to 6 emojis) with a short caption, then ask the student to describe or talk about it.
+- quiz: one question with three short options, for a quick game. Say the options out loud too. Reveal the answer in your next turn.
+- sticker: a reward emoji with a short label, after real effort or at wrap-up. At most one sticker every four turns.
+Refer to the board naturally ("Look at the board", "Can you read this?"). Keep board text short and at the student's level.
+"mood" is your face: happy when the student did well, curious when asking about them, encouraging when they struggle or stay silent, neutral otherwise.
 
 # Safety and care
 - Kid-safe content only. No romance, violence, scary or gross topics, no requests for personal data (address, school name, phone number), no links.
@@ -200,19 +224,26 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
 - If sincerely asked, say you are an AI English teacher. Do not pretend to be human.
 
 # Format
-- Plain text only: no markdown, no emojis, no bullet lists, no stage directions, no labels like "Coco:".
+- "say" is plain spoken text: no markdown, no emojis, no bullet lists, no stage directions, no labels like "Coco:".
 - Do not narrate about being an AI unless asked.
 
 # Notes you will see in square brackets (from the lesson system, not the student)
 - [Lesson starts] : greet the student by name in one short sentence, then ask your first easy question.
 - [The student did not answer for N seconds] : re-ask more simply with two choices. Do not scold.
 - [Time left: N minutes] : begin wrapping up. Do not mention the clock to the student.
-- [Time is up] : say goodbye warmly in one or two sentences, naming one thing they did well, and end with no question.`;
+- [Time is up] : say goodbye warmly in one or two sentences, naming one thing they did well, put a sticker on the board, and end with no question.`;
+  /* PROMPT:END */
+
+  const JSON_SHAPE = `
+
+# Output format
+Reply with ONLY one JSON object, no other text:
+{"say": string, "hint": string | null, "mood": "neutral" | "happy" | "curious" | "encouraging", "board": null | {"type": "word_card", "word": string, "emoji": string, "meaning_ko": string} | {"type": "sentence_frame", "frame": string, "example": string} | {"type": "picture", "emojis": string[], "caption_en": string} | {"type": "quiz", "question": string, "options": [string, string, string], "answer_index": 0 | 1 | 2} | {"type": "sticker", "emoji": string, "label_en": string}}`;
 
   const LEVELS = [
-    { id: "starter", label: "처음이에요", desc: "단어·짧은 문장 (초등 저학년)", guide: "Level: starter. Use very short sentences with simple present tense and everyday words. Ask yes/no or either/or questions. Repeat key words twice in a natural way. Keep each turn under about 20 words. Offer a HINT line whenever the student hesitates." },
-    { id: "basic", label: "기초 문장 가능", desc: "간단한 문장으로 대답 (초등 중학년)", guide: "Level: basic. Simple past and future are fine. Ask open questions but give a sentence frame when the student stalls. Keep each turn under about 35 words. Offer a HINT line only when the student is clearly stuck." },
-    { id: "intermediate", label: "대화 가능", desc: "2~3문장으로 이야기 (초등 고학년~)", guide: "Level: intermediate. Ask why and how questions and invite two or three sentence answers. Introduce one or two new useful expressions during the lesson and reuse them. Keep each turn under about 50 words. Use a HINT line rarely." },
+    { id: "starter", label: "처음이에요", desc: "단어·짧은 문장 (초등 저학년)", guide: "Level: starter. Use very short sentences with simple present tense and everyday words. Ask yes/no or either/or questions. Repeat key words twice in a natural way. Keep each turn under about 20 words. Give a hint whenever the student hesitates. Use word_card and picture boards often." },
+    { id: "basic", label: "기초 문장 가능", desc: "간단한 문장으로 대답 (초등 중학년)", guide: "Level: basic. Simple past and future are fine. Ask open questions but give a sentence frame when the student stalls. Keep each turn under about 35 words. Give a hint only when the student is clearly stuck. Use sentence_frame boards to scaffold answers." },
+    { id: "intermediate", label: "대화 가능", desc: "2~3문장으로 이야기 (초등 고학년~)", guide: "Level: intermediate. Ask why and how questions and invite two or three sentence answers. Introduce one or two new useful expressions during the lesson and reuse them. Keep each turn under about 50 words. Give a hint rarely. Use picture and quiz boards to invite longer answers." },
   ];
   const TOPICS = [
     { id: "favorites", label: "내가 좋아하는 것", en: "My favorite things" },
@@ -229,32 +260,25 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
   const GRACE_SEC = 90;
   const SILENCE_SEC = 10;
   const MAX_SILENCE = 2;
+  const MOODS = ["neutral", "happy", "curious", "encouraging"];
   const priceKrw = (min) => Math.round((PRICE_PER_HOUR * min) / 60);
 
   // ---------- 상태 ----------
   const S = {
     phase: "setup", // setup | ready | thinking | speaking | listening | idle | ending | report
     profile: null,
-    turns: [],       // {role, content} 그대로 Claude 에 보내는 대화
-    shown: [],       // 화면용 {role, text, hint}
-    live: "",
-    interim: "",
-    startedAt: null,
-    endedAt: null,
-    silence: 0,
-    timeUpSent: false,
-    busy: false,
-    ctl: null,
-    sample: null,
-    sampleGone: false,
-    micState: "unknown", // unknown | ok | off
-    rec: null,
-    report: null,
-    error: null,
-    notice: null,
+    turns: [],   // Claude 에 보내는 대화 (assistant 는 JSON 문자열)
+    shown: [],   // 화면용 {role, text, hint}
+    board: null, prevBoard: null, mood: "neutral", mouth: 0,
+    interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false,
+    busy: false, ctl: null, sample: null, sampleGone: false,
+    micState: "unknown", rec: null, report: null, error: null, notice: null, showLog: false, tts: false,
   };
+  let mouthTimer = null;
 
-  let sampleReady = window.claude && window.claude.use ? window.claude.use("sample").then((s) => { S.sample = s; if (!s) S.sampleGone = true; render(); return s; }) : Promise.resolve(null);
+  const sampleReady = window.claude && window.claude.use
+    ? window.claude.use("sample").then((s) => { S.sample = s; if (!s) S.sampleGone = true; render(); return s; })
+    : Promise.resolve(null);
   if (!(window.claude && window.claude.use)) S.sampleGone = true;
 
   // ---------- 유틸 ----------
@@ -271,15 +295,8 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
   };
   const load = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } };
   const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
-  function splitHint(raw) {
-    const speech = [], hints = [];
-    for (const line of raw.split(/\r?\n/)) {
-      const m = line.match(/^\s*HINT:\s*(.*)$/i);
-      if (m) hints.push(m[1].trim()); else speech.push(line);
-    }
-    return { speech: speech.join("\n").trim(), hint: hints.length ? hints.join(" ") : null };
-  }
   function remainingSec() {
     if (S.startedAt === null) return S.profile.durationMin * 60;
     return Math.max(0, Math.ceil((S.startedAt + S.profile.durationMin * 60000 - Date.now()) / 1000));
@@ -298,7 +315,25 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
   }
   function instructions() {
     const p = S.profile, topic = TOPICS.find((t) => t.id === p.topicId), lv = LEVELS.find((l) => l.id === p.level);
-    return CORE + `\n\n# This lesson\nStudent: ${p.name}, age ${p.age}.\nLesson length: ${p.durationMin} minutes.\nToday's topic: ${topic.en}.\n${lv.guide}`;
+    return CORE + `\n\n# This lesson\nStudent: ${p.name}, age ${p.age}.\nLesson length: ${p.durationMin} minutes.\nToday's topic: ${topic.en}.\n${lv.guide}` + JSON_SHAPE;
+  }
+  // 관대한 파서: 스키마 강제가 없으므로 살릴 수 있는 것만 살린다.
+  function coerceOutput(raw) {
+    const o = raw && typeof raw === "object" ? raw : {};
+    const say = typeof o.say === "string" ? o.say.trim() : "";
+    const hint = typeof o.hint === "string" && o.hint.trim() ? o.hint.trim() : null;
+    const mood = MOODS.includes(o.mood) ? o.mood : "neutral";
+    let board = null;
+    const b = o.board && typeof o.board === "object" ? o.board : null;
+    if (b) {
+      const str = (v) => (typeof v === "string" ? v : "");
+      if (b.type === "word_card" && str(b.word)) board = { type: "word_card", word: str(b.word), emoji: str(b.emoji) || "✨", meaning_ko: str(b.meaning_ko) };
+      else if (b.type === "sentence_frame" && str(b.frame)) board = { type: "sentence_frame", frame: str(b.frame), example: str(b.example) };
+      else if (b.type === "picture" && Array.isArray(b.emojis) && b.emojis.length >= 2) board = { type: "picture", emojis: b.emojis.slice(0, 6).map(str), caption_en: str(b.caption_en) };
+      else if (b.type === "quiz" && Array.isArray(b.options) && b.options.length === 3) board = { type: "quiz", question: str(b.question), options: b.options.map(str), answer_index: Math.min(2, Math.max(0, Number(b.answer_index) || 0)) };
+      else if (b.type === "sticker") board = { type: "sticker", emoji: str(b.emoji) || "⭐", label_en: str(b.label_en) || "Great job!" };
+    }
+    return { say, hint, mood, board };
   }
   const ERR_COPY = {
     not_granted: "이 페이지에서 Claude 사용을 허용하지 않아 선생님을 부를 수 없어요.",
@@ -308,11 +343,45 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
     refused: "선생님이 이 대답에는 응답하지 않았어요. 다른 말로 해 볼까요?",
     empty_completion: "선생님이 아무 말도 하지 않았어요. 다시 보내 주세요.",
     prompt_too_large: "대화가 너무 길어졌어요. 수업을 끝내고 새로 시작해 주세요.",
-    invalid_json: "리포트 형식이 맞지 않았어요. 다시 만들어 볼게요.",
+    invalid_json: "선생님 응답 형식이 맞지 않았어요. 다시 보내 주세요.",
     upstream_error: "연결이 잠깐 끊겼어요. 다시 보내 주세요.",
   };
   const copyFor = (e) => ERR_COPY[e && e.code] || ERR_COPY.upstream_error;
   const permanent = (e) => ["not_granted", "sampling_disabled", "not_declared", "capability_disabled", "capability_removed"].includes(e && e.code);
+
+  // ---------- 아바타 ----------
+  function avatarSvg() {
+    const state = S.phase === "speaking" ? "speaking" : S.phase === "thinking" ? "thinking" : S.phase === "listening" ? "listening" : "idle";
+    const mood = S.mood, open = Math.max(0, Math.min(1, S.mouth));
+    const mouthH = 4 + open * 22, mouthW = 30 + open * 6;
+    const browLift = mood === "curious" ? -6 : mood === "happy" ? -3 : 0;
+    const browTilt = mood === "encouraging" ? 6 : mood === "curious" ? -4 : 0;
+    const eyeScale = state === "listening" ? 1.15 : 1;
+    const lookX = state === "thinking" ? 6 : 0, lookY = state === "thinking" ? -5 : 0;
+    const smile = mood === "happy" || mood === "encouraging";
+    const mouth = open > 0.08
+      ? `<ellipse cx="100" cy="${126 + mouthH / 2}" rx="${mouthW / 2}" ry="${mouthH / 2}" fill="var(--av-mouth)"/>` + (open > 0.4 ? `<ellipse cx="100" cy="${126 + mouthH - 4}" rx="${mouthW / 3}" ry="${mouthH / 5}" fill="var(--av-tongue)"/>` : "")
+      : `<path d="${smile ? "M82 128 q18 16 36 0" : "M86 129 q14 9 28 0"}" stroke="var(--av-line)" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+    const think = state === "thinking" ? `<g><circle cx="158" cy="48" r="5" fill="var(--av-line)" opacity=".5"/><circle cx="170" cy="36" r="7" fill="var(--av-line)" opacity=".6"/><circle cx="185" cy="22" r="9" fill="var(--av-line)" opacity=".7"/></g>` : "";
+    return `<svg viewBox="0 0 200 200" class="avatar-svg state-${state}" role="img" aria-label="코코 선생님">
+      <ellipse cx="46" cy="70" rx="18" ry="24" fill="var(--av-fur-dark)" transform="rotate(-18 46 70)"/><ellipse cx="154" cy="70" rx="18" ry="24" fill="var(--av-fur-dark)" transform="rotate(18 154 70)"/>
+      <ellipse cx="48" cy="72" rx="10" ry="15" fill="var(--av-ear)" transform="rotate(-18 48 72)"/><ellipse cx="152" cy="72" rx="10" ry="15" fill="var(--av-ear)" transform="rotate(18 152 72)"/>
+      <g class="av-body">
+        <ellipse cx="100" cy="112" rx="72" ry="66" fill="var(--av-fur)"/><ellipse cx="100" cy="132" rx="46" ry="34" fill="var(--av-belly)"/>
+        <circle cx="60" cy="118" r="9" fill="var(--av-blush)" opacity=".8"/><circle cx="140" cy="118" r="9" fill="var(--av-blush)" opacity=".8"/>
+        <path d="M62 ${78 + browLift} q14 ${-8 + browTilt} 28 0" stroke="var(--av-line)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <path d="M110 ${78 + browLift} q14 ${-8 - browTilt} 28 0" stroke="var(--av-line)" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g class="av-eyes" transform="translate(${lookX} ${lookY})">
+          <g transform="translate(76 98) scale(${eyeScale})"><ellipse rx="9" ry="11" fill="var(--av-line)"/><circle cx="3" cy="-4" r="3" fill="#fff"/></g>
+          <g transform="translate(124 98) scale(${eyeScale})"><ellipse rx="9" ry="11" fill="var(--av-line)"/><circle cx="3" cy="-4" r="3" fill="#fff"/></g>
+        </g>
+        <ellipse cx="100" cy="116" rx="7" ry="5" fill="var(--av-line)"/>
+        ${mouth}
+      </g>${think}</svg>`;
+  }
+  function drawAvatar() { const a = $("#avatar"); if (a) a.innerHTML = avatarSvg(); }
+  function startMouth() { stopMouth(); mouthTimer = setInterval(() => { S.mouth = S.mouth > 0.3 ? 0.05 : 0.35 + Math.random() * 0.65; drawAvatar(); }, 110); }
+  function stopMouth() { if (mouthTimer) clearInterval(mouthTimer); mouthTimer = null; S.mouth = 0; drawAvatar(); }
 
   // ---------- 음성 ----------
   let voice;
@@ -332,12 +401,16 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
       const u = new SpeechSynthesisUtterance(text);
       u.lang = "en-US"; u.rate = S.profile.level === "starter" ? 0.88 : 0.95; u.pitch = 1.05;
       voice = voice || pickVoice(); if (voice) u.voice = voice;
-      u.onend = resolve; u.onerror = resolve;
+      let done = false;
+      const finish = () => { if (done) return; done = true; stopMouth(); resolve(); };
+      u.onstart = startMouth;
+      u.onboundary = () => { S.mouth = 1; drawAvatar(); };
+      u.onend = finish; u.onerror = finish;
       speechSynthesis.speak(u);
-      setTimeout(() => { if (speechSynthesis.speaking || speechSynthesis.pending) return; resolve(); }, 600); // 미지원 환경에서 멈춤 방지
+      setTimeout(() => { if (!speechSynthesis.speaking && !speechSynthesis.pending) finish(); }, 800);
     });
   }
-  const stopSpeak = () => { if ("speechSynthesis" in window) speechSynthesis.cancel(); };
+  const stopSpeak = () => { if ("speechSynthesis" in window) speechSynthesis.cancel(); stopMouth(); };
 
   function listen() {
     const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -348,16 +421,12 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
     let finalText = "", aborted = false, failed = false;
     rec.onresult = (e) => {
       let interim = "";
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        const r = e.results[i];
-        if (r.isFinal) finalText += r[0].transcript; else interim += r[0].transcript;
-      }
-      S.interim = finalText + interim; render();
+      for (let i = e.resultIndex; i < e.results.length; i++) { const r = e.results[i]; if (r.isFinal) finalText += r[0].transcript; else interim += r[0].transcript; }
+      S.interim = finalText + interim; renderStudent();
     };
     rec.onerror = (e) => {
       if (e.error === "no-speech" || e.error === "aborted") return;
-      failed = true;
-      S.micState = "off";
+      failed = true; S.micState = "off";
       S.notice = e.error === "not-allowed" || e.error === "service-not-allowed"
         ? "이 데모 페이지에서는 마이크를 쓸 수 없어요. 글로 대답해 주세요. 실제 앱에서는 아이가 말로 대답해요."
         : `음성 인식 오류: ${e.error}`;
@@ -389,8 +458,7 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
     if (S.startedAt === null) S.startedAt = Date.now();
     const g = gate();
     if (g === "closed") { S.busy = false; return finishLesson(); }
-    const left = remainingSec();
-    const note = g === "grace" || input.kind === "timeup" ? "[Time is up]" : timeNote(left);
+    const note = g === "grace" || input.kind === "timeup" ? "[Time is up]" : timeNote(remainingSec());
     const parts = [];
     if (input.kind === "start") parts.push("[Lesson starts]");
     else if (input.kind === "silence") parts.push(`[The student did not answer for ${SILENCE_SEC} seconds]`);
@@ -399,31 +467,27 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
     const content = parts.join("\n");
     S.turns.push({ role: "user", content });
     if (input.kind === "speech") S.shown.push({ role: "student", text: input.text.trim() });
-    else S.shown.push({ role: "sys", text: content });
-    S.live = ""; S.phase = "thinking"; render();
+    S.phase = "thinking"; render();
 
-    // 64KiB 제한: 지침은 항상 유지하고 오래된 턴부터 버린다.
-    const recent = S.turns.slice(-60);
+    const recent = S.turns.slice(-60); // 64KiB 제한: 지침은 유지, 오래된 턴부터 버림
     const ctl = new AbortController(); S.ctl = ctl;
-    let text;
+    let out;
     try {
-      const r = await sample([{ role: "user", content: instructions() }, ...recent], {
-        cache: false, modelTier: "quick", signal: ctl.signal,
-        onText: ({ text: t }) => { S.live = t; render(); },
-      });
-      text = r.text.trim();
+      const raw = await sample.json([{ role: "user", content: instructions() }, ...recent], { cache: false, modelTier: "quick", signal: ctl.signal });
+      out = coerceOutput(raw);
+      if (!out.say) throw { code: "empty_completion" };
     } catch (e) {
-      S.turns.pop(); S.shown.pop();
-      if (e && e.code === "cancelled") { S.phase = "idle"; }
-      else { S.error = copyFor(e); S.phase = "idle"; if (permanent(e)) S.sampleGone = true; }
-      if (S.turns.length === 0) S.startedAt = null;
-      S.busy = false; S.live = ""; render(); return;
+      S.turns.pop(); if (input.kind === "speech") S.shown.pop();
+      if (!(e && e.code === "cancelled")) { S.error = copyFor(e); if (permanent(e)) S.sampleGone = true; }
+      S.phase = "idle"; if (S.turns.length === 0) S.startedAt = null;
+      S.busy = false; render(); return;
     }
-    S.turns.push({ role: "assistant", content: text });
-    const { speech, hint } = splitHint(text);
-    S.shown.push({ role: "tutor", text: speech, hint });
-    S.live = ""; S.phase = "speaking"; render();
-    await speak(speech);
+    S.turns.push({ role: "assistant", content: JSON.stringify(out) });
+    S.shown.push({ role: "tutor", text: out.say, hint: out.hint });
+    S.mood = out.mood;
+    if (out.board) { S.prevBoard = S.board; S.board = out.board; } else { S.prevBoard = S.board; }
+    S.phase = "speaking"; render();
+    await speak(out.say);
     S.busy = false;
     const ended = g === "grace" || input.kind === "timeup";
     if (ended) { S.endedAt = Date.now(); return finishLesson(); }
@@ -437,6 +501,12 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
     if (!listen()) { S.phase = "idle"; render(); focusInput(); }
   }
   const focusInput = () => { const i = $("#say"); if (i) i.focus(); };
+  function submitText(text) {
+    const t = (text || "").trim(); if (!t) return;
+    S.silence = 0;
+    if (S.phase === "speaking") { stopSpeak(); S.busy = false; }
+    sendTurn({ kind: "speech", text: t });
+  }
 
   async function finishLesson() {
     stopListen(); stopSpeak();
@@ -445,7 +515,7 @@ Your job is to LEAD a spoken conversation lesson. The student hears your words t
     S.phase = "ending"; S.error = null; render();
     const studentTurns = S.shown.filter((t) => t.role === "student").length;
     if (studentTurns === 0 || !S.sample) { S.report = null; S.phase = "report"; render(); return; }
-    const transcript = S.shown.filter((t) => t.role !== "sys").map((t) => `${t.role === "tutor" ? "Tutor" : "Student"}: ${t.text}`).join("\n");
+    const transcript = S.shown.map((t) => `${t.role === "tutor" ? "Tutor" : "Student"}: ${t.text}`).join("\n");
     const p = S.profile, topic = TOPICS.find((t) => t.id === p.topicId);
     const prompt = `You write short, honest lesson reports for parents of Korean children after a 1:1 English speaking lesson with an AI tutor.
 Write Korean fields in warm, plain Korean (존댓말). Be specific: quote what the student actually said. Do not exaggerate. If the student spoke very little, say so kindly and suggest what would help.
@@ -461,9 +531,7 @@ Reply with ONLY one JSON object of this exact shape:
     try {
       const r = await S.sample.json(prompt, { modelTier: "default", cache: false });
       S.report = r && typeof r === "object" ? r : null;
-    } catch (e) {
-      S.report = null; S.error = copyFor(e);
-    }
+    } catch (e) { S.report = null; S.error = copyFor(e); }
     S.phase = "report"; render();
   }
 
@@ -479,34 +547,34 @@ Reply with ONLY one JSON object of this exact shape:
       fire();
     }
   }, 1000);
-  const fmt = (s) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
 
   // ---------- 화면 ----------
   function render() {
-    const view = $("#view"), right = $("#topRight");
+    const view = $("#view"), right = $("#topRight"), logo = $("#logo");
     view.replaceChildren();
+    logo.replaceChildren("코코 ", el("em", {}, "영어 선생님"), S.profile && S.phase !== "setup" && S.phase !== "report" ? el("small", {}, " · " + TOPICS.find((t) => t.id === S.profile.topicId).label) : null);
     if (S.phase === "setup") { right.replaceChildren(el("span", { class: "pill" }, "데모 · 시간당 1,000원")); return view.append(renderSetup()); }
     if (S.phase === "report") { right.replaceChildren(el("span", { class: "pill" }, "수업 끝")); return view.append(renderReport()); }
     right.replaceChildren(
       el("span", { class: "pill timer" + (remainingSec() <= 60 && S.startedAt ? " low" : ""), id: "timer" }, fmt(remainingSec())),
       S.phase !== "ready" ? el("button", { class: "btn quiet small", onclick: () => finishLesson(), disabled: S.phase === "ending" }, "끝내기") : null,
     );
-    view.append(renderLesson());
+    view.append(S.phase === "ready" ? renderReady() : renderLesson());
   }
 
   function renderSetup() {
     const saved = load("coco.setup", {});
     const f = { name: saved.name || "", age: saved.age || 8, level: saved.level || "starter", topicId: saved.topicId || "favorites", durationMin: saved.durationMin || 3 };
+    const startLabel = () => `${priceKrw(f.durationMin).toLocaleString("ko-KR")}원으로 수업 시작`;
     const choices = (items, key, labelOf, subOf) => el("div", { class: "choices" }, items.map((it) => {
       const id = typeof it === "object" ? it.id : it;
       const b = el("button", { type: "button", class: "choice", "aria-pressed": String(f[key] === id) }, el("b", {}, labelOf(it)), el("small", {}, subOf(it)));
       b.addEventListener("click", () => { f[key] = id; [...b.parentNode.children].forEach((c) => c.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); const s = $("#startBtn"); if (s) s.textContent = startLabel(); });
       return b;
     }));
-    const startLabel = () => `${priceKrw(f.durationMin).toLocaleString("ko-KR")}원으로 수업 시작`;
     const nameIn = el("input", { type: "text", id: "name", placeholder: "예: Mina", maxlength: "20", value: f.name, required: true });
     const ageIn = el("input", { type: "number", id: "age", min: "5", max: "15", value: String(f.age) });
-    const form = el("form", { class: "card", onsubmit: (e) => {
+    return el("form", { class: "card", onsubmit: (e) => {
       e.preventDefault();
       f.name = nameIn.value.trim(); f.age = Math.min(15, Math.max(5, Number(ageIn.value) || 8));
       if (!f.name) { nameIn.focus(); return; }
@@ -515,7 +583,7 @@ Reply with ONLY one JSON object of this exact shape:
       S.phase = "ready"; render();
     } },
       el("h1", {}, "말하기로 배우는 1:1 영어 수업"),
-      el("p", { class: "muted" }, "AI 선생님 코코가 질문을 이어가며 아이가 계속 영어로 말하게 이끌어요. 이 데모는 실제 앱과 같은 선생님 지침으로 동작해요."),
+      el("p", { class: "muted" }, "AI 선생님 코코가 화면에 카드와 그림을 보여주면서 질문을 이어가요. 줌 수업처럼 선생님 얼굴과 공유 화면이 함께 보여요."),
       S.sampleGone ? el("div", { class: "note err" }, "이 페이지는 claude.ai 안에서 열어야 선생님을 부를 수 있어요.") : null,
       el("div", { class: "field" }, el("label", { for: "name" }, "아이 이름 (영어로 불러요)"), nameIn),
       el("div", { class: "field" }, el("label", { for: "age" }, "나이"), ageIn),
@@ -526,49 +594,80 @@ Reply with ONLY one JSON object of this exact shape:
       el("div", { class: "note info" }, "데모에서는 글로 대답하고 선생님 목소리는 브라우저 TTS 로 들려요. 마이크 입력은 실제 앱(Chrome/Edge)에서 동작해요. Claude 호출은 보시는 분의 claude.ai 사용량으로 계산돼요."),
       el("details", { style: "margin-top:14px" }, el("summary", {}, "선생님 지침 보기"), el("div", { class: "prompt-box", style: "margin-top:8px" }, CORE)),
     );
-    return form;
+  }
+
+  function renderReady() {
+    return el("div", { class: "card" },
+      el("h1", {}, `${S.profile.name}, 준비됐나요?`),
+      el("p", { class: "muted" }, `${S.profile.durationMin}분 동안 코코 선생님과 영어로 이야기해요. 선생님이 화면에 카드와 그림을 보여주면서 수업해요. 잘 모르겠으면 아는 만큼만 말해도 괜찮아요.`),
+      S.error ? el("div", { class: "note err" }, S.error) : null,
+      el("button", { class: "btn", type: "button", onclick: () => sendTurn({ kind: "start" }) }, "선생님과 인사하기"),
+      el("div", { class: "note info" }, "첫 호출 때 claude.ai 가 이 페이지의 Claude 사용을 허용할지 물어봐요. 허용해야 수업이 시작돼요."),
+    );
+  }
+
+  function renderBoard() {
+    const b = S.board, topic = TOPICS.find((t) => t.id === S.profile.topicId);
+    if (!b) return el("div", { class: "board board-cover" }, el("div", { class: "board-kicker" }, "Today's topic"), el("div", { class: "board-title" }, topic.en), el("div", { class: "board-sub" }, topic.label));
+    if (b.type === "word_card") return el("div", { class: "board board-word" }, el("div", { class: "board-emoji" }, b.emoji), el("div", { class: "board-word-en" }, b.word), el("div", { class: "board-word-ko" }, b.meaning_ko));
+    if (b.type === "sentence_frame") {
+      const parts = b.frame.split("___");
+      const text = el("div", { class: "board-frame-text" });
+      parts.forEach((p, i) => { text.append(p); if (i < parts.length - 1) text.append(el("span", { class: "blank" }, "____")); });
+      return el("div", { class: "board board-frame" }, el("div", { class: "board-kicker" }, "Say it like this"), text, el("div", { class: "board-sub" }, "e.g. " + b.example));
+    }
+    if (b.type === "picture") return el("div", { class: "board board-picture" }, el("div", { class: "board-scene" }, b.emojis.map((e) => el("span", {}, e))), el("div", { class: "board-sub" }, b.caption_en));
+    if (b.type === "quiz") {
+      const reveal = S.prevBoard === b; // 보드가 바뀌지 않은 채 다음 턴이 왔으면 정답 공개
+      return el("div", { class: "board board-quiz" }, el("div", { class: "board-kicker" }, "Quiz"), el("div", { class: "board-question" }, b.question),
+        el("div", { class: "board-options" }, b.options.map((o, i) => el("button", { type: "button", class: "board-option" + (reveal && i === b.answer_index ? " correct" : ""), disabled: S.phase === "thinking" || S.phase === "ending", onclick: () => submitText(o) }, el("b", {}, String.fromCharCode(65 + i)), " " + o))));
+    }
+    return el("div", { class: "board board-sticker" }, el("div", { class: "sticker-emoji" }, b.emoji), el("div", { class: "sticker-label" }, b.label_en));
+  }
+
+  function renderStudent() {
+    const s = $("#studentSaid"); if (!s) return;
+    const last = [...S.shown].reverse().find((t) => t.role === "student");
+    s.textContent = S.interim || (last ? last.text : "") || (S.phase === "listening" ? "…" : "");
   }
 
   function renderLesson() {
-    const wrap = el("div", { class: "stage" });
-    if (S.phase === "ready") {
-      wrap.append(el("div", { class: "card" },
-        el("h1", {}, `${S.profile.name}, 준비됐나요?`),
-        el("p", { class: "muted" }, `${S.profile.durationMin}분 동안 코코 선생님과 영어로 이야기해요. 선생님 말이 끝나면 대답 차례예요. 잘 모르겠으면 아는 만큼만 말해도 괜찮아요.`),
-        S.error ? el("div", { class: "note err" }, S.error) : null,
-        el("button", { class: "btn", type: "button", onclick: () => sendTurn({ kind: "start" }) }, "선생님과 인사하기"),
-        el("div", { class: "note info" }, "첫 호출 때 claude.ai 가 이 페이지의 Claude 사용을 허용할지 물어봐요. 허용해야 수업이 시작돼요."),
-      ));
-      return wrap;
-    }
-    for (const t of S.shown) {
-      if (t.role === "tutor") wrap.append(el("div", { class: "bubble tutor" }, el("div", { class: "who" }, el("span", { class: "avatar" }, "C"), "Coco"), t.text, t.hint ? el("div", { class: "hint" }, "힌트: " + t.hint) : null));
-      else if (t.role === "student") wrap.append(el("div", { class: "bubble student" }, t.text));
-      else wrap.append(el("div", { class: "bubble sys" }, t.text));
-    }
-    if (S.phase === "thinking") wrap.append(el("div", { class: "bubble tutor" }, el("div", { class: "who" }, el("span", { class: "avatar" }, "C"), "Coco"), S.live ? S.live : el("span", { class: "dots" }, "생각하는 중")));
-    if (S.interim) wrap.append(el("div", { class: "bubble student interim" }, S.interim));
-
+    const lastTutor = [...S.shown].reverse().find((t) => t.role === "tutor");
+    const busy = S.phase === "thinking" || S.phase === "ending";
     const statusText = { thinking: "선생님이 생각하는 중", speaking: "선생님이 말하는 중 (보내기를 누르면 바로 대답할 수 있어요)", listening: "듣고 있어요. 영어로 말해 보세요!", idle: "대답을 쓰고 보내기를 누르세요", ending: "리포트를 만드는 중" }[S.phase] || "";
-    const input = el("input", { type: "text", id: "say", placeholder: "영어로 대답하기 (한국어도 알아들어요)", autocomplete: "off", disabled: S.phase === "thinking" || S.phase === "ending" });
-    const send = el("button", { type: "submit", class: "send", disabled: S.phase === "thinking" || S.phase === "ending" }, "보내기");
-    const mic = S.micState === "off" ? null : el("button", { type: "button", class: "mic" + (S.phase === "listening" ? " on" : ""), "aria-label": "마이크", disabled: S.phase === "thinking" || S.phase === "ending", onclick: () => {
+
+    const share = el("div", { class: "share" },
+      el("div", { class: "share-bar" }, el("span", { class: "share-dot" }), "Coco is sharing the board"),
+      renderBoard(),
+      el("div", { class: "caption" },
+        S.phase === "thinking" ? el("span", { class: "dots" }, "생각하는 중") : (lastTutor ? lastTutor.text : ""),
+        S.phase !== "thinking" && lastTutor && lastTutor.hint ? el("div", { class: "hint" }, "힌트: " + lastTutor.hint) : null,
+      ),
+    );
+    const tiles = el("div", { class: "tiles" },
+      el("div", { class: "tile" + (S.phase === "speaking" ? " active" : "") }, el("div", { id: "avatar", style: "width:100%;height:100%;display:flex;align-items:center;justify-content:center" }), el("div", { class: "tile-name" }, "Coco")),
+      el("div", { class: "tile" + (S.phase === "listening" ? " active" : "") }, el("div", { class: "student-face" }, S.profile.name.slice(0, 1).toUpperCase()), el("div", { class: "student-said", id: "studentSaid" }), el("div", { class: "tile-name" }, S.profile.name)),
+    );
+    const input = el("input", { type: "text", id: "say", placeholder: "영어로 대답하기 (한국어도 알아들어요)", autocomplete: "off", disabled: busy });
+    const send = el("button", { type: "submit", class: "send", disabled: busy }, "보내기");
+    const mic = S.micState === "off" ? null : el("button", { type: "button", class: "mic" + (S.phase === "listening" ? " on" : ""), "aria-label": "마이크", disabled: busy, onclick: () => {
       if (S.phase === "listening") { if (S.rec) S.rec.stop(); return; }
-      if (S.phase === "speaking") stopSpeak();
+      if (S.phase === "speaking") { stopSpeak(); S.busy = false; }
       S.silence = 0; startListening();
     } }, S.phase === "listening" ? "👂" : "🎤");
-    const form = el("form", { class: "composer", onsubmit: (e) => {
-      e.preventDefault(); const t = input.value.trim(); if (!t) return; input.value = ""; S.silence = 0; sendTurn({ kind: "speech", text: t });
-    } }, input, send, mic);
+    const form = el("form", { class: "composer", onsubmit: (e) => { e.preventDefault(); const t = input.value; input.value = ""; submitText(t); } }, input, send, mic);
     const dock = el("div", { class: "dock" },
       S.error ? el("div", { class: "note err", style: "margin:0 0 8px" }, S.error) : null,
       S.notice ? el("div", { class: "note warn", style: "margin:0 0 8px" }, S.notice) : null,
       el("div", { class: "status" + (S.phase === "listening" ? " listening" : "") }, statusText),
       form,
-      el("div", { class: "row" }, el("span", {}, `${S.profile.durationMin}분 · ${priceKrw(S.profile.durationMin).toLocaleString("ko-KR")}원 · ${LEVELS.find((l) => l.id === S.profile.level).label}`), el("span", {}, S.tts ? "TTS 켜짐" : "TTS 없음")),
+      el("div", { class: "row" },
+        el("button", { type: "button", class: "btn ghost", onclick: () => { S.showLog = !S.showLog; render(); } }, S.showLog ? "대화 기록 닫기" : `대화 기록 (${S.shown.length})`),
+        el("span", {}, `${S.profile.durationMin}분 · ${priceKrw(S.profile.durationMin).toLocaleString("ko-KR")}원 · ${LEVELS.find((l) => l.id === S.profile.level).label}`)),
+      S.showLog ? el("div", { class: "log" }, S.shown.map((t) => el("div", {}, el("b", { class: t.role === "tutor" ? "t" : "s" }, t.role === "tutor" ? "Coco" : S.profile.name), " " + t.text, t.hint ? el("span", { class: "h" }, " · 힌트: " + t.hint) : null))) : null,
     );
-    const root = el("div", { style: "display:flex;flex-direction:column;min-height:calc(100dvh - 80px)" }, wrap, dock);
-    queueMicrotask(() => { window.scrollTo({ top: document.body.scrollHeight }); if (S.phase === "idle") focusInput(); });
+    const root = el("div", { class: "zoom" }, el("div", { class: "zoom-main" }, share, tiles), dock);
+    queueMicrotask(() => { drawAvatar(); renderStudent(); if (S.phase === "idle") focusInput(); });
     return root;
   }
 
@@ -578,7 +677,7 @@ Reply with ONLY one JSON object of this exact shape:
     const studentTurns = S.shown.filter((t) => t.role === "student").length;
     const sig = { below: "조금 더 쉬운 레벨을 추천해요", on: "지금 레벨이 잘 맞아요", above: "한 단계 높은 레벨도 좋아요" };
     const arr = (v) => Array.isArray(v) ? v : [];
-    const root = el("div", {},
+    return el("div", {},
       el("div", { class: "card" },
         el("h1", {}, "오늘 수업 리포트"),
         el("p", { class: "muted" }, `${p.name} · ${p.durationMin}분 수업 · ${priceKrw(p.durationMin).toLocaleString("ko-KR")}원`),
@@ -595,14 +694,13 @@ Reply with ONLY one JSON object of this exact shape:
         el("span", { class: "pill", style: "background:var(--mint-soft);color:var(--mint)" }, sig[r.level_signal] || String(r.level_signal || "")),
       ) : el("div", { class: "card" }, el("p", {}, studentTurns === 0 ? "아이가 말한 내용이 없어 리포트를 만들지 않았어요." : "리포트를 만들지 못했어요.")),
       el("div", { class: "card" },
-        el("details", {}, el("summary", {}, "대화 전체 보기"), el("div", { class: "prompt-box", style: "margin-top:8px" }, S.shown.map((t) => `${t.role === "tutor" ? "Coco" : t.role === "student" ? p.name : "system"}: ${t.text}${t.hint ? "\n  힌트: " + t.hint : ""}`).join("\n"))),
+        el("details", {}, el("summary", {}, "대화 전체 보기"), el("div", { class: "prompt-box", style: "margin-top:8px" }, S.shown.map((t) => `${t.role === "tutor" ? "Coco" : p.name}: ${t.text}${t.hint ? "\n  힌트: " + t.hint : ""}`).join("\n"))),
         el("div", { class: "field" }, el("button", { class: "btn quiet", type: "button", onclick: () => {
-          Object.assign(S, { phase: "setup", profile: null, turns: [], shown: [], live: "", interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false, busy: false, report: null, error: null, notice: null });
+          Object.assign(S, { phase: "setup", profile: null, turns: [], shown: [], board: null, prevBoard: null, mood: "neutral", mouth: 0, interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false, busy: false, report: null, error: null, notice: null, showLog: false });
           render();
         } }, "새 수업 시작하기")),
       ),
     );
-    return root;
   }
 
   render();

@@ -13,7 +13,10 @@
 - **음성 입출력은 브라우저 내장 API**(Web Speech API)를 씁니다. 별도 STT/TTS 비용이 0원이라 시간당 1,000원 구조가 성립합니다. Chrome/Edge에서 동작하고, 미지원 브라우저는 글로 대답할 수 있습니다.
 - **선생님은 Claude**입니다. 기본 모델은 `claude-opus-5`, 낮은 effort, 프롬프트 캐시, 서버측 refusal 폴백을 씁니다. 모델은 `TUTOR_MODEL` 환경변수로 바꿉니다.
 - **선생님이 수업을 끌고 갑니다.** 매 턴 한 문장 질문으로 끝내고, 아이가 막히면 두 개 중 고르게 하거나 문장 틀을 줍니다. 틀린 말은 흐름을 끊지 않고 고쳐 말해주는 방식(recast)으로 교정합니다.
-- **한국어 힌트**: 아이가 막힐 때만 `HINT:` 줄로 한국어 힌트를 내려보냅니다. 화면에만 보이고 읽어주지는 않습니다.
+- **줌형 수업 화면**: 선생님이 공유하는 칠판(큰 화면) + 코코 아바타 타일 + 아이 타일. 매 턴 선생님이 말할 내용과 함께 표정(mood)과 칠판 명령을 구조화 출력으로 내려보냅니다.
+- **칠판 명령 5종**: 단어 카드, 문장 틀, 그림(이모지 장면) 설명, 3지선다 퀴즈, 칭찬 스티커. 그림은 1단계에서 이모지를 쓰며 주제별 일러스트로 교체할 수 있습니다.
+- **2D 아바타**: 인라인 SVG 캐릭터. TTS 에 맞춰 입이 움직이고 표정 4종(neutral/happy/curious/encouraging)과 상태(듣는 중/생각 중/말하는 중)를 표현합니다. 추가 비용 0원.
+- **한국어 힌트**: 아이가 막힐 때만 `hint` 필드로 한국어 힌트를 내려보냅니다. 화면에만 보이고 읽어주지는 않습니다.
 - **시간 관리**: 서버가 시계를 갖습니다. 남은 2분부터 마무리 신호를 주고, 종료 후 유예 90초 안에 작별 인사 1턴만 허용합니다.
 - **수업 리포트**: 끝나면 학부모용 리포트(요약, 잘한 점, 교정 표현, 새 표현, 다음 수업 포인트, 레벨 판단)를 구조화 출력으로 만듭니다.
 
@@ -26,6 +29,7 @@ claude.ai Artifact 로 열면 API 키 없이 바로 수업을 해볼 수 있습�
 - 글로 대답하고, 선생님 목소리는 브라우저 TTS 로 들립니다. Artifact 는 마이크 접근이 막혀 있어 음성 입력은 실제 앱에서만 됩니다.
 - 3분 수업 옵션이 있어 마무리 신호 → 작별 인사 → 리포트 흐름까지 짧게 볼 수 있습니다.
 - 다시 게시하려면 이 세션에서 만든 Artifact 링크를 쓰거나, Claude 에게 `demo/coco-demo.html` 을 Artifact 로 올려 달라고 하면 됩니다.
+- 선생님 지침(`prompt.ts`)을 바꾸면 `node scripts/sync-demo-prompt.mjs` 로 데모에도 반영합니다.
 
 ### 2) 실제 앱: 로컬 실행 (음성 입력 포함)
 
@@ -55,7 +59,8 @@ pnpm build
 | 경로 | 역할 |
 |---|---|
 | `src/lib/tutor/prompt.ts` | 선생님 지침(고정, 캐시 공유), 레벨/주제 프로필, HINT 파싱, 시간 노트 |
-| `src/lib/tutor/turn.ts` | 한 턴 실행: 메시지 조립, 캐시 브레이크포인트, 스트리밍, refusal 처리 |
+| `src/lib/tutor/board.ts` | 턴 출력 스키마: say / hint / mood / board(칠판 명령 5종) |
+| `src/lib/tutor/turn.ts` | 한 턴 실행: 메시지 조립, 캐시 브레이크포인트, 구조화 출력, refusal 처리 |
 | `src/lib/tutor/report.ts` | 수업 리포트 생성 (zod 스키마 구조화 출력) |
 | `src/lib/tutor/claude.ts` | Anthropic 클라이언트, 모델별 요청 옵션(effort, fallbacks) |
 | `src/lib/tutor/store.ts` | 세션 저장소 인터페이스 + 인메모리 구현 |
@@ -63,7 +68,10 @@ pnpm build
 | `src/lib/billing/cost.ts` | 토큰 사용량 → 원가(원), 1시간 원가 시나리오 |
 | `src/lib/speech.ts` | 브라우저 STT/TTS 래퍼 |
 | `src/app/api/sessions/**` | 세션 생성/조회, 턴(NDJSON 스트림), 리포트 |
-| `src/components/LessonClient.tsx` | 수업 화면: 듣기 → 보내기 → 읽어주기 → 다시 듣기 루프 |
+| `src/components/LessonClient.tsx` | 줌형 수업 화면: 듣기 → 보내기 → 읽어주기 → 다시 듣기 루프 |
+| `src/components/Avatar.tsx`, `Board.tsx` | 2D 코코 아바타(SVG), 칠판 렌더러 |
+| `scripts/sync-demo-prompt.mjs` | 앱의 선생님 지침을 데모 페이지에 복사 |
+| `docs/launch.md` | 꾸그 연동과 실제 런칭 절차, 체크리스트 |
 | `docs/cost-model.md` | 시간당 원가 분석과 모델 선택 |
 | `docs/integration.md` | 꾸그 연동 포인트 (인증, 결제, 저장소, 안전) |
 

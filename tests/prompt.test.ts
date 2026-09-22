@@ -1,22 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildSystemBlocks, splitHint, timeNote, TUTOR_CORE_PROMPT } from "@/lib/tutor/prompt";
-
-describe("splitHint", () => {
-  it("separates the HINT line from spoken text", () => {
-    const r = splitHint("Do you like pizza?\nHINT: 피자 좋아하니? 라고 물었어요.");
-    expect(r.speech).toBe("Do you like pizza?");
-    expect(r.hint).toBe("피자 좋아하니? 라고 물었어요.");
-  });
-  it("returns null hint when absent", () => {
-    expect(splitHint("Hello Mina! What is your favorite color?")).toEqual({
-      speech: "Hello Mina! What is your favorite color?",
-      hint: null,
-    });
-  });
-  it("is case-insensitive and trims", () => {
-    expect(splitHint("  Hi!  \n hint:   안녕  ").hint).toBe("안녕");
-  });
-});
+import { buildSystemBlocks, timeNote, TUTOR_CORE_PROMPT } from "@/lib/tutor/prompt";
 
 describe("timeNote", () => {
   it("is silent while plenty of time remains", () => {
@@ -52,6 +35,7 @@ describe("buildSystemBlocks", () => {
   });
   it("core prompt contains no volatile values", () => {
     expect(TUTOR_CORE_PROMPT).not.toMatch(/\d{4}-\d{2}-\d{2}/);
-    expect(TUTOR_CORE_PROMPT).toContain("HINT:");
+    expect(TUTOR_CORE_PROMPT).toContain("word_card");
+    expect(TUTOR_CORE_PROMPT).toContain("sticker");
   });
 });

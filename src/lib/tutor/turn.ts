@@ -1,6 +1,8 @@
 import type Anthropic from "@anthropic-ai/sdk";
+import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { anthropic, modelRequestOptions } from "./claude";
-import { buildSystemBlocks, splitHint, timeNote } from "./prompt";
+import { buildSystemBlocks, timeNote } from "./prompt";
+import { TurnOutputSchema, type TurnOutput } from "./board";
 import type { TutorSession } from "./store";
 import { remainingSec, turnGate } from "@/lib/billing/meter";
 
@@ -12,11 +14,10 @@ export type TurnInput =
   | { kind: "timeup" };
 
 export type TurnEvent =
-  | { type: "delta"; text: string }
+  | { type: "thinking" }
   | {
       type: "done";
-      speech: string;
-      hint: string | null;
+      output: TurnOutput;
       remainingSec: number;
       ended: boolean;
       usage: Anthropic.Beta.BetaUsage;
@@ -46,10 +47,23 @@ function withHistoryBreakpoint(messages: Anthropic.Beta.BetaMessageParam[]): Ant
   return [...messages.slice(0, -1), { ...last, content: blocks }];
 }
 
-const FALLBACK_LINE = "Hmm, let's talk about something else. What is your favorite color?";
+const FALLBACK_OUTPUT: TurnOutput = {
+  say: "Hmm, let's talk about something else. What is your favorite color?",
+  hint: "다른 이야기를 해 볼까요? 좋아하는 색이 뭐예요?",
+  mood: "encouraging",
+  board: null,
+};
 
 /**
- * 한 턴을 실행하고 이벤트를 스트리밍한다. 세션 객체를 직접 갱신한다 (messages, usage, status).
+ * 이력에 남기는 assistant 턴은 구조화 출력 JSON 전체다. 다음 턴에서 모델이 자기 보드 조작을 기억해야 하기 때문.
+ * 리포트 생성 시에는 transcriptText 가 say 만 뽑아 쓴다.
+ */
+export function assistantContent(output: TurnOutput): string {
+  return JSON.stringify(output);
+}
+
+/**
+ * 한 턴을 실행하고 이벤트를 내보낸다. 세션 객체를 직접 갱신한다 (messages, usage, status).
  * 호출자는 session.busy 락과 저장을 책임진다.
  */
 export async function* runTurn(session: TutorSession, input: TurnInput): AsyncGenerator<TurnEvent> {
@@ -75,35 +89,31 @@ export async function* runTurn(session: TutorSession, input: TurnInput): AsyncGe
   const userMessage: Anthropic.Beta.BetaMessageParam = { role: "user", content: buildUserContent(input, note) };
   const request = withHistoryBreakpoint([...session.messages, userMessage]);
 
-  const stream = anthropic.beta.messages.stream({
+  yield { type: "thinking" };
+
+  const response = await anthropic.beta.messages.parse({
     model: session.model,
-    max_tokens: 1500, // 짧은 발화 + 적응형 사고 여유. 비용 상한 목적의 의도적 제한.
+    max_tokens: 1500, // 짧은 발화 + 보드 JSON + 적응형 사고 여유. 비용 상한 목적의 의도적 제한.
     ...modelRequestOptions(session.model, "low"),
     system: buildSystemBlocks(session.profile),
     messages: request,
+    output_config: { format: betaZodOutputFormat(TurnOutputSchema) },
   });
 
-  let raw = "";
-  for await (const event of stream) {
-    if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-      raw += event.delta.text;
-      yield { type: "delta", text: event.delta.text };
-    }
-  }
-  const final = await stream.finalMessage();
-
-  let text = raw.trim();
-  if (final.stop_reason === "refusal" || !text) {
-    // 폴백까지 모두 거부했거나 빈 응답. 수업을 끊지 않도록 안전한 한 줄로 대체한다.
-    text = FALLBACK_LINE;
+  let output: TurnOutput;
+  if (response.stop_reason === "refusal" || !response.parsed_output || !response.parsed_output.say.trim()) {
+    // 폴백까지 모두 거부했거나 스키마 불일치. 수업을 끊지 않도록 안전한 한 턴으로 대체한다.
+    output = FALLBACK_OUTPUT;
+  } else {
+    output = response.parsed_output;
   }
 
-  session.messages.push(userMessage, { role: "assistant", content: text });
+  session.messages.push(userMessage, { role: "assistant", content: assistantContent(output) });
   session.usage = {
-    inputTokens: session.usage.inputTokens + final.usage.input_tokens,
-    outputTokens: session.usage.outputTokens + final.usage.output_tokens,
-    cacheReadTokens: session.usage.cacheReadTokens + (final.usage.cache_read_input_tokens ?? 0),
-    cacheWriteTokens: session.usage.cacheWriteTokens + (final.usage.cache_creation_input_tokens ?? 0),
+    inputTokens: session.usage.inputTokens + response.usage.input_tokens,
+    outputTokens: session.usage.outputTokens + response.usage.output_tokens,
+    cacheReadTokens: session.usage.cacheReadTokens + (response.usage.cache_read_input_tokens ?? 0),
+    cacheWriteTokens: session.usage.cacheWriteTokens + (response.usage.cache_creation_input_tokens ?? 0),
     requests: session.usage.requests + 1,
   };
 
@@ -113,13 +123,5 @@ export async function* runTurn(session: TutorSession, input: TurnInput): AsyncGe
     session.endedAt = Date.now();
   }
 
-  const { speech, hint } = splitHint(text);
-  yield {
-    type: "done",
-    speech,
-    hint,
-    remainingSec: remainingSec(clock),
-    ended,
-    usage: final.usage,
-  };
+  yield { type: "done", output, remainingSec: remainingSec(clock), ended, usage: response.usage };
 }
