@@ -17,13 +17,31 @@
 - **시간 관리**: 서버가 시계를 갖습니다. 남은 2분부터 마무리 신호를 주고, 종료 후 유예 90초 안에 작별 인사 1턴만 허용합니다.
 - **수업 리포트**: 끝나면 학부모용 리포트(요약, 잘한 점, 교정 표현, 새 표현, 다음 수업 포인트, 레벨 판단)를 구조화 출력으로 만듭니다.
 
-## 실행
+## 직접 테스트하기
+
+### 1) 설치 없이 바로: 데모 페이지 (`demo/coco-demo.html`)
+
+claude.ai Artifact 로 열면 API 키 없이 바로 수업을 해볼 수 있습니다. 실제 앱과 같은 선생님 지침으로 동작하고, Claude 호출은 페이지를 연 사람의 claude.ai 사용량으로 계산됩니다.
+
+- 글로 대답하고, 선생님 목소리는 브라우저 TTS 로 들립니다. Artifact 는 마이크 접근이 막혀 있어 음성 입력은 실제 앱에서만 됩니다.
+- 3분 수업 옵션이 있어 마무리 신호 → 작별 인사 → 리포트 흐름까지 짧게 볼 수 있습니다.
+- 다시 게시하려면 이 세션에서 만든 Artifact 링크를 쓰거나, Claude 에게 `demo/coco-demo.html` 을 Artifact 로 올려 달라고 하면 됩니다.
+
+### 2) 실제 앱: 로컬 실행 (음성 입력 포함)
 
 ```bash
+git clone https://github.com/taehwang-ui/glorang.git && cd glorang
+git checkout claude/ai-english-tutor-7f9zrr
 pnpm install
 cp .env.example .env.local   # ANTHROPIC_API_KEY 입력
-pnpm dev                     # http://localhost:3000
+pnpm dev                     # http://localhost:3000 을 Chrome/Edge 로 열기
 ```
+
+마이크 권한을 허용하면 아이가 말한 내용이 자동 인식됩니다. 20분 수업 하나에 Opus 5 기준 약 150~200원의 API 비용이 듭니다.
+
+### 3) 실제 앱: Vercel 배포
+
+저장소를 Vercel 에 연결하고 환경변수 `ANTHROPIC_API_KEY` 만 넣으면 됩니다. 세션이 서버 메모리에 있으므로 배포 환경에서는 인스턴스가 하나일 때만 정상 동작합니다 (docs/integration.md 의 저장소 교체 참고).
 
 검사:
 
