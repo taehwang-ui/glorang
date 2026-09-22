@@ -154,6 +154,34 @@
   .log div { margin-bottom: 6px; }
   .log b.t { color: var(--accent); } .log b.s { color: var(--sky); } .log .h { color: var(--hint-ink); }
 
+  /* mock 꾸그 상세페이지 */
+  .gg-top { display: flex; align-items: center; justify-content: space-between; padding: 6px 0 12px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+  .gg-logo { font-family: "Baloo 2", sans-serif; font-weight: 800; font-size: 22px; color: #ff5a36; letter-spacing: -0.02em; }
+  .gg-nav { display: flex; gap: 12px; font-size: 13px; color: var(--muted); }
+  .gg-hero { background: linear-gradient(135deg, #ffe4dc, #fff1c2); border-radius: 18px; aspect-ratio: 16 / 8; display: flex; align-items: center; justify-content: center; gap: 18px; margin-bottom: 14px; overflow: hidden; }
+  .gg-hero .avatar-svg { width: 150px; height: 150px; }
+  .gg-hero .bubble { background: #fff; color: #1e2a2b; border-radius: 16px; padding: 10px 14px; font-weight: 700; box-shadow: var(--shadow); }
+  .gg-tag { display: inline-block; background: var(--mint-soft); color: var(--mint); font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; margin-bottom: 6px; }
+  .gg-title { font-size: 22px; font-weight: 800; margin: 0 0 4px; }
+  .gg-price { font-size: 20px; font-weight: 800; color: #ff5a36; margin: 6px 0 12px; }
+  .gg-price small { font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 6px; }
+  .gg-points { display: grid; gap: 6px; margin: 0 0 14px; padding: 0; list-style: none; }
+  .gg-points li { display: flex; gap: 8px; font-size: 14px; }
+  .gg-child { display: flex; gap: 8px; align-items: center; background: var(--surface-2); border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .gg-child label { font-size: 13px; color: var(--muted); }
+  .gg-child input { padding: 8px 10px; border: 2px solid var(--line); border-radius: 10px; background: var(--surface); width: 110px; }
+  .gg-child input[type="number"] { width: 70px; }
+  .gg-cta { background: #ff5a36; color: #fff; border: 0; border-radius: 14px; padding: 15px; font-weight: 800; font-size: 17px; width: 100%; }
+  .gg-foot { font-size: 12px; color: var(--muted); margin-top: 10px; text-align: center; }
+  .welcome-avatar { width: 200px; height: 160px; margin: 0 auto 6px; background: var(--stage); border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+  .welcome-avatar .avatar-svg { width: 90%; height: 90%; }
+  .progress { display: flex; gap: 6px; justify-content: center; margin: 4px 0 14px; }
+  .progress-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .progress-dot.on { background: var(--accent); }
+  .actions { display: flex; gap: 8px; margin-top: 16px; }
+  .actions .btn { flex: 1; }
+  .center { text-align: center; }
+
   /* report */
   .praise { background: var(--accent-soft); border-radius: 14px; padding: 14px 16px; font-family: "Baloo 2", "Noto Sans KR", sans-serif; font-weight: 800; font-size: 20px; text-align: center; text-wrap: balance; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
@@ -171,7 +199,7 @@
 </style>
 
 <div class="app" id="app">
-  <div class="top">
+  <div class="top" id="top">
     <div class="logo" id="logo">코코 <em>영어 선생님</em></div>
     <div class="right" id="topRight"><span class="pill">데모 · 시간당 1,000원</span></div>
   </div>
@@ -284,7 +312,9 @@ Reply with ONLY one JSON object, no other text:
 
   // ---------- 상태 ----------
   const S = {
-    phase: "setup", // setup | ready | thinking | speaking | listening | idle | ending | report
+    phase: "gguge", // gguge | welcome | thinking | speaking | listening | idle | ending | report
+    visitor: null, // { name, age, minutes }  꾸그 [시작하기] 가 넘겨주는 정보 (데모에서는 상세페이지 폼)
+    welcome: { step: "hello", speaking: false, heard: false, level: "starter", topicId: "favorites", durationMin: 3 },
     profile: null,
     turns: [],   // Claude 에 보내는 대화 (assistant 는 JSON 문자열)
     shown: [],   // 화면용 {role, text, hint}
@@ -370,7 +400,7 @@ Reply with ONLY one JSON object, no other text:
 
   // ---------- 아바타 ----------
   function avatarSvg() {
-    const state = S.phase === "speaking" ? "speaking" : S.phase === "thinking" ? "thinking" : S.phase === "listening" ? "listening" : "idle";
+    const state = S.welcome.speaking || S.phase === "speaking" ? "speaking" : S.phase === "thinking" ? "thinking" : S.phase === "listening" ? "listening" : "idle";
     const mood = S.mood, open = Math.max(0, Math.min(1, S.mouth));
     const mouthH = 4 + open * 22, mouthW = 30 + open * 6;
     const browLift = mood === "curious" ? -6 : mood === "happy" ? -3 : 0;
@@ -398,7 +428,7 @@ Reply with ONLY one JSON object, no other text:
         ${mouth}
       </g>${think}</svg>`;
   }
-  function drawAvatar() { const a = $("#avatar"); if (a) a.innerHTML = avatarSvg(); }
+  function drawAvatar() { for (const a of document.querySelectorAll("[data-avatar]")) a.innerHTML = avatarSvg(); }
   function startMouth() { stopMouth(); mouthTimer = setInterval(() => { S.mouth = S.mouth > 0.3 ? 0.05 : 0.35 + Math.random() * 0.65; drawAvatar(); }, 110); }
   function stopMouth() { if (mouthTimer) clearInterval(mouthTimer); mouthTimer = null; S.mouth = 0; drawAvatar(); }
 
@@ -470,7 +500,7 @@ Reply with ONLY one JSON object, no other text:
 
   // ---------- 턴 ----------
   async function sendTurn(input) {
-    if (S.busy || ["report", "ending", "setup"].includes(S.phase)) return;
+    if (S.busy || ["report", "ending", "gguge", "welcome"].includes(S.phase) && input.kind !== "start") return;
     const sample = S.sample || (await sampleReady);
     if (!sample) { S.error = "이 페이지에서는 Claude 를 쓸 수 없어요. claude.ai 안에서 열어 주세요."; S.phase = "idle"; render(); return; }
     S.busy = true; stopListen(); stopSpeak(); S.error = null;
@@ -504,7 +534,8 @@ Reply with ONLY one JSON object, no other text:
     } catch (e) {
       S.turns.pop(); if (input.kind === "speech") S.shown.pop();
       if (!(e && e.code === "cancelled")) { S.error = copyFor(e); if (permanent(e)) S.sampleGone = true; }
-      S.phase = "idle"; if (S.turns.length === 0) S.startedAt = null;
+      if (S.turns.length === 0) { S.startedAt = null; S.visitor.minutes += S.profile.durationMin; S.phase = "welcome"; }
+      else S.phase = "idle";
       S.busy = false; render(); return;
     }
     S.turns.push({ role: "assistant", content: JSON.stringify(out) });
@@ -563,7 +594,7 @@ Reply with ONLY one JSON object of this exact shape:
   // 타이머
   setInterval(() => {
     if (!S.profile || S.startedAt === null) return;
-    if (["setup", "ready", "ending", "report"].includes(S.phase)) return;
+    if (["gguge", "welcome", "ending", "report"].includes(S.phase)) return;
     const left = remainingSec();
     const t = $("#timer"); if (t) { t.textContent = fmt(left); t.classList.toggle("low", left <= 60); }
     if (left <= 0 && !S.timeUpSent) {
@@ -575,60 +606,127 @@ Reply with ONLY one JSON object of this exact shape:
 
   // ---------- 화면 ----------
   function render() {
-    const view = $("#view"), right = $("#topRight"), logo = $("#logo");
+    const view = $("#view"), right = $("#topRight"), logo = $("#logo"), top = $("#top");
     view.replaceChildren();
-    logo.replaceChildren("코코 ", el("em", {}, "영어 선생님"), S.profile && S.phase !== "setup" && S.phase !== "report" ? el("small", {}, " · " + TOPICS.find((t) => t.id === S.profile.topicId).label) : null);
-    if (S.phase === "setup") { right.replaceChildren(el("span", { class: "pill" }, "데모 · 시간당 1,000원")); return view.append(renderSetup()); }
+    top.hidden = S.phase === "gguge";
+    logo.replaceChildren("코코 ", el("em", {}, "영어 선생님"), S.profile && !["gguge", "welcome", "report"].includes(S.phase) ? el("small", {}, " · " + TOPICS.find((t) => t.id === S.profile.topicId).label) : null);
+    if (S.phase === "gguge") return view.append(renderGguge());
+    if (S.phase === "welcome") { right.replaceChildren(el("span", { class: "pill", style: "background:var(--mint-soft);color:var(--mint)" }, `남은 수업 시간 ${S.visitor.minutes}분`)); return view.append(renderWelcome()); }
     if (S.phase === "report") { right.replaceChildren(el("span", { class: "pill" }, "수업 끝")); return view.append(renderReport()); }
     right.replaceChildren(
       el("span", { class: "pill timer" + (remainingSec() <= 60 && S.startedAt ? " low" : ""), id: "timer" }, fmt(remainingSec())),
-      S.phase !== "ready" ? el("button", { class: "btn quiet small", onclick: () => finishLesson(), disabled: S.phase === "ending" }, "끝내기") : null,
+      el("button", { class: "btn quiet small", onclick: () => finishLesson(), disabled: S.phase === "ending" }, "끝내기"),
     );
-    view.append(S.phase === "ready" ? renderReady() : renderLesson());
+    view.append(renderLesson());
   }
 
-  function renderSetup() {
-    const saved = load("coco.setup", {});
-    const f = { name: saved.name || "", age: saved.age || 8, level: saved.level || "starter", topicId: saved.topicId || "favorites", durationMin: saved.durationMin || 3 };
-    const startLabel = () => `${priceKrw(f.durationMin).toLocaleString("ko-KR")}원으로 수업 시작`;
+  // ---------- 꾸그 상세페이지 (목업) ----------
+  function renderGguge() {
+    const saved = load("coco.child", { name: "", age: 8 });
+    const nameIn = el("input", { type: "text", id: "ggName", placeholder: "영어 이름", maxlength: "20", value: saved.name });
+    const ageIn = el("input", { type: "number", id: "ggAge", min: "5", max: "15", value: String(saved.age) });
+    S.mood = "happy";
+    const root = el("div", {},
+      el("div", { class: "gg-top" }, el("div", { class: "gg-logo" }, "꾸그"), el("div", { class: "gg-nav" }, el("span", {}, "라이브 클래스"), el("span", {}, "AI 선생님"), el("span", {}, "마이페이지"))),
+      el("div", { class: "card" },
+        el("div", { class: "gg-hero" }, el("div", { "data-avatar": "" }), el("div", { class: "bubble" }, "Hello! I'm Coco 👋")),
+        el("span", { class: "gg-tag" }, "1:1 AI 스피킹"),
+        el("h1", { class: "gg-title" }, "AI 영어 선생님 코코와 말하기 수업"),
+        el("p", { class: "muted" }, "코코가 화면에 카드와 그림을 보여주면서 질문을 이어가요. 아이는 듣고, 따라 하고, 계속 영어로 말해요."),
+        el("div", { class: "gg-price" }, "시간당 1,000원", el("small", {}, "20분 333원 · 10분 167원")),
+        el("ul", { class: "gg-points" },
+          el("li", {}, "🗣️ ", "선생님이 질문을 이어가서 아이가 계속 말하게 해요"),
+          el("li", {}, "🖼️ ", "단어 카드·그림·퀴즈를 화면에 공유하며 수업해요"),
+          el("li", {}, "📋 ", "수업이 끝나면 학부모 리포트가 와요"),
+        ),
+        el("div", { class: "gg-child" }, el("label", {}, "자녀"), nameIn, el("label", {}, "나이"), ageIn),
+        el("button", { class: "gg-cta", type: "button", onclick: () => {
+          const name = nameIn.value.trim(); if (!name) { nameIn.focus(); return; }
+          const age = Math.min(15, Math.max(5, Number(ageIn.value) || 8));
+          save("coco.child", { name, age });
+          // 실제 꾸그에서는 여기서 서버가 서명 토큰을 만들어 /start 로 보낸다. 데모에서는 바로 웰컴으로.
+          S.visitor = { name, age, minutes: 60 };
+          S.welcome = { step: "hello", speaking: false, heard: false, level: "starter", topicId: "favorites", durationMin: 3 };
+          S.phase = "welcome"; render();
+        } }, "AI 선생님과 수업 시작하기"),
+        el("div", { class: "gg-foot" }, "이 화면은 꾸그 상세페이지를 흉내낸 목업이에요. [시작하기]를 누르면 실제 서비스와 같은 흐름이 시작돼요."),
+        S.sampleGone ? el("div", { class: "note err" }, "이 페이지는 claude.ai 안에서 열어야 선생님을 부를 수 있어요.") : null,
+        el("details", { style: "margin-top:14px" }, el("summary", {}, "선생님 지침 보기"), el("div", { class: "prompt-box", style: "margin-top:8px" }, CORE)),
+      ),
+    );
+    queueMicrotask(drawAvatar);
+    return root;
+  }
+
+  // ---------- 웰컴 (인사·소리 확인 → 레벨 → 주제 → 길이) ----------
+  async function sayHello() {
+    if (!("speechSynthesis" in window)) { S.welcome.heard = true; render(); return; }
+    S.welcome.speaking = true; S.mood = "happy"; render();
+    speechSynthesis.cancel();
+    await new Promise((resolve) => {
+      const u = new SpeechSynthesisUtterance(`Hello ${S.visitor.name}! I'm Coco. Can you hear me?`);
+      u.lang = "en-US"; u.rate = 0.92; u.pitch = 1.05;
+      voice = voice || pickVoice(); if (voice) u.voice = voice;
+      let done = false; const finish = () => { if (done) return; done = true; stopMouth(); resolve(); };
+      u.onstart = startMouth; u.onboundary = () => { S.mouth = 1; drawAvatar(); }; u.onend = finish; u.onerror = finish;
+      speechSynthesis.speak(u);
+      setTimeout(() => { if (!speechSynthesis.speaking && !speechSynthesis.pending) finish(); }, 800);
+    });
+    S.welcome.speaking = false; S.welcome.heard = true; render();
+  }
+
+  function renderWelcome() {
+    const w = S.welcome, v = S.visitor;
+    const steps = ["hello", "level", "topic", "length"], idx = steps.indexOf(w.step);
+    const progress = el("div", { class: "progress" }, steps.map((st, i) => el("span", { class: "progress-dot" + (i <= idx ? " on" : "") })));
+    const go = (step) => { w.step = step; render(); };
     const choices = (items, key, labelOf, subOf) => el("div", { class: "choices" }, items.map((it) => {
       const id = typeof it === "object" ? it.id : it;
-      const b = el("button", { type: "button", class: "choice", "aria-pressed": String(f[key] === id) }, el("b", {}, labelOf(it)), el("small", {}, subOf(it)));
-      b.addEventListener("click", () => { f[key] = id; [...b.parentNode.children].forEach((c) => c.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); const s = $("#startBtn"); if (s) s.textContent = startLabel(); });
+      const b = el("button", { type: "button", class: "choice", "aria-pressed": String(w[key] === id) }, el("b", {}, labelOf(it)), el("small", {}, subOf(it)));
+      b.addEventListener("click", () => { w[key] = id; [...b.parentNode.children].forEach((c) => c.setAttribute("aria-pressed", "false")); b.setAttribute("aria-pressed", "true"); });
       return b;
     }));
-    const nameIn = el("input", { type: "text", id: "name", placeholder: "예: Mina", maxlength: "20", value: f.name, required: true });
-    const ageIn = el("input", { type: "number", id: "age", min: "5", max: "15", value: String(f.age) });
-    return el("form", { class: "card", onsubmit: (e) => {
-      e.preventDefault();
-      f.name = nameIn.value.trim(); f.age = Math.min(15, Math.max(5, Number(ageIn.value) || 8));
-      if (!f.name) { nameIn.focus(); return; }
-      save("coco.setup", f);
-      S.profile = { ...f }; S.tts = "speechSynthesis" in window;
-      S.phase = "ready"; render();
-    } },
-      el("h1", {}, "말하기로 배우는 1:1 영어 수업"),
-      el("p", { class: "muted" }, "AI 선생님 코코가 화면에 카드와 그림을 보여주면서 질문을 이어가요. 줌 수업처럼 선생님 얼굴과 공유 화면이 함께 보여요."),
-      S.sampleGone ? el("div", { class: "note err" }, "이 페이지는 claude.ai 안에서 열어야 선생님을 부를 수 있어요.") : null,
-      el("div", { class: "field" }, el("label", { for: "name" }, "아이 이름 (영어로 불러요)"), nameIn),
-      el("div", { class: "field" }, el("label", { for: "age" }, "나이"), ageIn),
-      el("div", { class: "field" }, el("span", { class: "lbl" }, "영어 레벨"), choices(LEVELS, "level", (l) => l.label, (l) => l.desc)),
-      el("div", { class: "field" }, el("span", { class: "lbl" }, "오늘의 주제"), choices(TOPICS, "topicId", (t) => t.label, (t) => t.en)),
-      el("div", { class: "field" }, el("span", { class: "lbl" }, "수업 길이"), choices(DURATIONS, "durationMin", (d) => `${d}분`, (d) => d === 3 ? "테스트용 · " + priceKrw(d) + "원" : priceKrw(d).toLocaleString("ko-KR") + "원")),
-      el("div", { class: "field" }, el("button", { class: "btn", type: "submit", id: "startBtn" }, startLabel())),
-      el("div", { class: "note info" }, "데모에서는 글로 대답하고 선생님 목소리는 브라우저 TTS 로 들려요. 마이크 입력은 실제 앱(Chrome/Edge)에서 동작해요. Claude 호출은 보시는 분의 claude.ai 사용량으로 계산돼요."),
-      el("details", { style: "margin-top:14px" }, el("summary", {}, "선생님 지침 보기"), el("div", { class: "prompt-box", style: "margin-top:8px" }, CORE)),
-    );
-  }
-
-  function renderReady() {
-    return el("div", { class: "card" },
-      el("h1", {}, `${S.profile.name}, 준비됐나요?`),
-      el("p", { class: "muted" }, `${S.profile.durationMin}분 동안 코코 선생님과 영어로 이야기해요. 선생님이 화면에 카드와 그림을 보여주면서 수업해요. 잘 모르겠으면 아는 만큼만 말해도 괜찮아요.`),
-      S.error ? el("div", { class: "note err" }, S.error) : null,
-      el("button", { class: "btn", type: "button", onclick: () => sendTurn({ kind: "start" }) }, "선생님과 인사하기"),
-      el("div", { class: "note info" }, "첫 호출 때 claude.ai 가 이 페이지의 Claude 사용을 허용할지 물어봐요. 허용해야 수업이 시작돼요."),
-    );
+    let card;
+    if (w.step === "hello") {
+      card = el("div", { class: "card center" },
+        el("div", { class: "welcome-avatar" }, el("div", { "data-avatar": "", style: "width:100%;height:100%;display:flex;align-items:center;justify-content:center" })),
+        el("h1", {}, `${v.name}, 안녕!`),
+        el("p", { class: "muted" }, "나는 영어 선생님 코코야. 영어로 이야기하면서 같이 놀자. 먼저 내 목소리가 잘 들리는지 확인해 볼까?"),
+        el("div", { class: "actions" },
+          el("button", { class: "btn quiet", type: "button", disabled: w.speaking, onclick: () => sayHello() }, w.speaking ? "말하는 중..." : "🔊 코코 목소리 듣기"),
+          el("button", { class: "btn", type: "button", onclick: () => go("level") }, w.heard ? "잘 들려요, 다음" : "다음")),
+        el("div", { class: "note info", style: "text-align:left" }, "데모에서는 글로 대답해요. 실제 앱에서는 여기서 마이크 권한도 확인해요."),
+      );
+      queueMicrotask(drawAvatar);
+    } else if (w.step === "level") {
+      card = el("div", { class: "card" },
+        el("h1", {}, "영어를 얼마나 해 봤어?"),
+        el("p", { class: "muted" }, "잘 모르겠으면 ‘처음이에요’로 시작해요. 수업이 끝나면 코코가 딱 맞는 레벨을 알려줘요."),
+        choices(LEVELS, "level", (l) => l.label, (l) => l.desc),
+        el("div", { class: "actions" }, el("button", { class: "btn quiet", type: "button", onclick: () => go("hello") }, "이전"), el("button", { class: "btn", type: "button", onclick: () => go("topic") }, "다음")));
+    } else if (w.step === "topic") {
+      card = el("div", { class: "card" },
+        el("h1", {}, "오늘은 무슨 이야기를 할까?"),
+        choices(TOPICS, "topicId", (t) => t.label, (t) => t.en),
+        el("div", { class: "actions" }, el("button", { class: "btn quiet", type: "button", onclick: () => go("level") }, "이전"), el("button", { class: "btn", type: "button", onclick: () => go("length") }, "다음")));
+    } else {
+      const available = DURATIONS.filter((d) => d <= v.minutes);
+      card = el("div", { class: "card" },
+        el("h1", {}, "얼마나 수업할까?"),
+        el("p", { class: "muted" }, `남은 시간 ${v.minutes}분 안에서 고를 수 있어요. 흐름을 빨리 보려면 3분, 실제 수업은 20분을 권해요.`),
+        available.length ? choices(available, "durationMin", (d) => `${d}분`, (d) => d === 3 ? "테스트용 · " + priceKrw(d) + "원 상당" : priceKrw(d).toLocaleString("ko-KR") + "원 상당") : el("div", { class: "note err" }, "남은 수업 시간이 없어요."),
+        S.error ? el("div", { class: "note err" }, S.error) : null,
+        el("div", { class: "actions" }, el("button", { class: "btn quiet", type: "button", onclick: () => go("topic") }, "이전"),
+          el("button", { class: "btn", type: "button", disabled: !available.length, onclick: () => {
+            v.minutes -= w.durationMin; // 데모용 잔액 차감 (실제 앱은 서버 장부)
+            S.profile = { name: v.name, age: v.age, level: w.level, topicId: w.topicId, durationMin: w.durationMin };
+            S.tts = "speechSynthesis" in window; S.error = null;
+            S.phase = "idle"; sendTurn({ kind: "start" });
+          } }, "수업 시작하기 🎤")),
+        el("div", { class: "note info" }, "첫 호출 때 claude.ai 가 이 페이지의 Claude 사용을 허용할지 물어봐요. 허용해야 수업이 시작돼요."),
+      );
+    }
+    return el("div", {}, progress, card);
   }
 
   function renderBoard() {
@@ -670,7 +768,7 @@ Reply with ONLY one JSON object of this exact shape:
       ),
     );
     const tiles = el("div", { class: "tiles" },
-      el("div", { class: "tile" + (S.phase === "speaking" ? " active" : "") }, el("div", { id: "avatar", style: "width:100%;height:100%;display:flex;align-items:center;justify-content:center" }), el("div", { class: "tile-name" }, "Coco")),
+      el("div", { class: "tile" + (S.phase === "speaking" ? " active" : "") }, el("div", { "data-avatar": "", style: "width:100%;height:100%;display:flex;align-items:center;justify-content:center" }), el("div", { class: "tile-name" }, "Coco")),
       el("div", { class: "tile" + (S.phase === "listening" ? " active" : "") }, el("div", { class: "student-face" }, S.profile.name.slice(0, 1).toUpperCase()), el("div", { class: "student-said", id: "studentSaid" }), el("div", { class: "tile-name" }, S.profile.name)),
     );
     const input = el("input", { type: "text", id: "say", placeholder: "영어로 대답하기 (한국어도 알아들어요)", autocomplete: "off", disabled: busy });
@@ -721,9 +819,9 @@ Reply with ONLY one JSON object of this exact shape:
       el("div", { class: "card" },
         el("details", {}, el("summary", {}, "대화 전체 보기"), el("div", { class: "prompt-box", style: "margin-top:8px" }, S.shown.map((t) => `${t.role === "tutor" ? "Coco" : p.name}: ${t.text}${t.hint ? "\n  힌트: " + t.hint : ""}`).join("\n"))),
         el("div", { class: "field" }, el("button", { class: "btn quiet", type: "button", onclick: () => {
-          Object.assign(S, { phase: "setup", profile: null, turns: [], shown: [], board: null, prevBoard: null, mood: "neutral", mouth: 0, interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false, busy: false, report: null, error: null, notice: null, showLog: false, lastPhase: null });
+          Object.assign(S, { phase: "gguge", profile: null, turns: [], shown: [], board: null, prevBoard: null, mood: "neutral", mouth: 0, interim: "", startedAt: null, endedAt: null, silence: 0, timeUpSent: false, busy: false, report: null, error: null, notice: null, showLog: false, lastPhase: null });
           render();
-        } }, "새 수업 시작하기")),
+        } }, "꾸그 상세페이지로 돌아가기")),
       ),
     );
   }
